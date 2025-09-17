@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: science-1b-backend-prisma
+    env: node
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: npm install && npm run db:generate && npm run build
+    startCommand: npm run db:deploy && npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: science-1b-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://science-1b-website.netlify.app
+      - key: CORS_ORIGIN
+        value: https://science-1b-website.netlify.app
+      - key: UPLOAD_DIR
+        value: uploads
+      - key: MAX_FILE_SIZE
+        value: 5242880
+
+databases:
+  - name: science-1b-db
+    plan: free
+    region: oregon
+    databaseName: science_1b_db
+    user: science_1b_user
+    postgresMajorVersion: 15

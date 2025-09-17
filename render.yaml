@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: science-1b-backend
+    env: node
+    plan: free
+    buildCommand: cd backend && npm install && npm run build
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DB_HOST
+        fromDatabase:
+          name: science-1b-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: science-1b-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: science-1b-db
+          property: name
+      - key: DB_USER
+        fromDatabase:
+          name: science-1b-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: science-1b-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://science-1b-website.netlify.app
+
+databases:
+  - name: science-1b-db
+    plan: free
+    databaseName: science_1b_db
+    user: science_1b_user
