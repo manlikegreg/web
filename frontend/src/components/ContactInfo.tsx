@@ -173,7 +173,7 @@ export default function ContactInfo() {
           </div>
           <div className="flex items-center space-x-1">
             <Clock className="w-4 h-4" />
-            <span>Response time: < 24h</span>
+            <span>Response time: &lt; 24h</span>
           </div>
         </div>
       </motion.div>
