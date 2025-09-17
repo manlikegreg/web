@@ -1,6 +1,6 @@
 [build]
   # Build command for Next.js
-  command = "cd frontend && npm run build"
+  command = "npm run build"
   
   # Directory to publish (Next.js static export output)
   publish = "frontend/out"
@@ -60,4 +60,5 @@
   [[context.branch-deploy.redirects]]
     from = "/api/*"
     to = "https://science-1b-backend-prisma.onrender.com/api/:splat"
+
     status = 200
