@@ -1,0 +1,67 @@
+[build]
+  # Build command for Next.js
+  command = "cd frontend && npm run build"
+  
+  # Directory to publish (Next.js output)
+  publish = "frontend/.next"
+
+[build.environment]
+  # Node.js version
+  NODE_VERSION = "18"
+  
+  # Next.js environment
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# Redirect rules for Next.js
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers for security and performance
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+# Cache static assets
+[[headers]]
+  for = "/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# API proxy to backend (for development)
+[[redirects]]
+  from = "/api/*"
+  to = "https://science-1b-backend-prisma.onrender.com/api/:splat"
+  status = 200
+  force = false
+  conditions = {Role = ["admin"]}
+
+# Environment-specific redirects
+[context.production]
+  [[context.production.redirects]]
+    from = "/api/*"
+    to = "https://science-1b-backend-prisma.onrender.com/api/:splat"
+    status = 200
+
+[context.deploy-preview]
+  [[context.deploy-preview.redirects]]
+    from = "/api/*"
+    to = "https://science-1b-backend-prisma.onrender.com/api/:splat"
+    status = 200
+
+[context.branch-deploy]
+  [[context.branch-deploy.redirects]]
+    from = "/api/*"
+    to = "https://science-1b-backend-prisma.onrender.com/api/:splat"
+    status = 200
