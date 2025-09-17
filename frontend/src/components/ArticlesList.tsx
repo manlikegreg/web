@@ -185,7 +185,7 @@ export default function ArticlesList() {
               </div>
             </motion.article>
           ))}
-        </div>
+        </StaggerAnimation>
 
         {/* Load More Button */}
         <ScrollAnimation className="text-center mt-12">
