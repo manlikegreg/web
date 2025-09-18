@@ -16,6 +16,7 @@ import notFound from './middleware/notFound.js';
 import studentRoutes from './routes/students.js';
 import articleRoutes from './routes/articles.js';
 import galleryRoutes from './routes/gallery.js';
+import adminLite from './routes/adminLite.js';
 
 // Load environment variables
 dotenv.config();
@@ -95,6 +96,10 @@ app.get('/', (req: Request, res: Response) => {
 app.use('/api/students', studentRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/gallery', galleryRoutes);
+// Admin Lite (basic HTML) - optional
+if (process.env.ADMIN_LITE_ENABLED === 'true') {
+  app.use('/admin-lite', adminLite);
+}
 
 // AdminJS panel (protected) - guard with env flag to allow boot without AdminJS
 if (process.env.ADMINJS_ENABLED === 'true') {
