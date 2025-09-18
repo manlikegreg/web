@@ -25,7 +25,7 @@ router.post('/', upload.single('file'), (req, res) => {
     return;
   }
   const url = `/uploads/${req.file.filename}`;
-  res.json({ success: true, url });
+  res.json({ success: true, data: { url } });
 });
 
 export default router;
