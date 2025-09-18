@@ -9,15 +9,15 @@ import { PrismaClient } from '@prisma/client';
 import session from 'express-session';
 import AdminJS from 'adminjs';
 import AdminJSExpress from '@adminjs/express';
-import { buildAdmin } from './admin';
+import { buildAdmin } from './admin.js';
 
-import errorHandler from './middleware/errorHandler';
-import notFound from './middleware/notFound';
+import errorHandler from './middleware/errorHandler.js';
+import notFound from './middleware/notFound.js';
 
 // Import routes
-import studentRoutes from './routes/students';
-import articleRoutes from './routes/articles';
-import galleryRoutes from './routes/gallery';
+import studentRoutes from './routes/students.js';
+import articleRoutes from './routes/articles.js';
+import galleryRoutes from './routes/gallery.js';
 
 // Load environment variables
 dotenv.config();
@@ -68,47 +68,58 @@ app.get('/health', (req: Request, res: Response) => {
   });
 });
 
+// API health alias for frontend compatibility
+app.get('/api/health', (req: Request, res: Response) => {
+  res.status(200).json({
+    success: true,
+    message: 'Science 1B API is running',
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // API routes
 app.use('/api/students', studentRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/gallery', galleryRoutes);
 
-// AdminJS panel (protected)
-const admin = buildAdmin(prisma);
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@science1b.local';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
-const SESSION_SECRET = process.env.SESSION_SECRET || 'science1b-secret';
+// AdminJS panel (protected) - guard with env flag to allow boot without AdminJS
+if (process.env.ADMINJS_ENABLED === 'true') {
+  const admin = buildAdmin(prisma);
+  const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@science1b.local';
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+  const SESSION_SECRET = process.env.SESSION_SECRET || 'science1b-secret';
 
-app.use(
-  session({
-    secret: SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false },
-  })
-);
+  app.use(
+    session({
+      secret: SESSION_SECRET,
+      resave: false,
+      saveUninitialized: false,
+      cookie: { secure: false },
+    })
+  );
 
-const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
-  admin,
-  {
-    authenticate: async (email, password) => {
-      if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-        return { email } as any;
-      }
-      return null;
+  const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
+    admin,
+    {
+      authenticate: async (email, password) => {
+        if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+          return { email } as any;
+        }
+        return null;
+      },
+      cookieName: 'science1b_admin',
+      cookiePassword: SESSION_SECRET,
     },
-    cookieName: 'science1b_admin',
-    cookiePassword: SESSION_SECRET,
-  },
-  null,
-  {
-    resave: false,
-    saveUninitialized: false,
-    secret: SESSION_SECRET,
-  }
-);
+    null,
+    {
+      resave: false,
+      saveUninitialized: false,
+      secret: SESSION_SECRET,
+    }
+  );
 
-app.use(admin.options.rootPath, adminRouter);
+  app.use(admin.options.rootPath, adminRouter);
+}
 
 // Error handling middleware
 app.use(notFound);

@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 const errorHandler = (err, req, res, next) => {
     let error = { ...err };
     error.message = err.message;
@@ -25,5 +23,5 @@ const errorHandler = (err, req, res, next) => {
         ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
     });
 };
-exports.default = errorHandler;
+export default errorHandler;
 //# sourceMappingURL=errorHandler.js.map

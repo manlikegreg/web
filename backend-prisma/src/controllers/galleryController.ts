@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { prisma } from '../server';
-import { ApiResponse, Gallery } from '../types';
+import { prisma } from '../server.js';
+import { ApiResponse, Gallery } from '../types/index.js';
 
 // GET /api/gallery - Get all gallery items
 export const getAllGalleryItems = async (req: Request, res: Response): Promise<void> => {

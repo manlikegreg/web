@@ -1,10 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteStudent = exports.updateStudent = exports.createStudent = exports.getStudentById = exports.getAllStudents = void 0;
-const server_1 = require("../server");
-const getAllStudents = async (req, res) => {
+import { prisma } from '../server.js';
+export const getAllStudents = async (req, res) => {
     try {
-        const students = await server_1.prisma.student.findMany({
+        const students = await prisma.student.findMany({
             orderBy: { createdAt: 'desc' },
         });
         const response = {
@@ -21,11 +18,10 @@ const getAllStudents = async (req, res) => {
         });
     }
 };
-exports.getAllStudents = getAllStudents;
-const getStudentById = async (req, res) => {
+export const getStudentById = async (req, res) => {
     try {
         const { id } = req.params;
-        const student = await server_1.prisma.student.findUnique({
+        const student = await prisma.student.findUnique({
             where: { id },
             include: {
                 articles: {
@@ -54,11 +50,10 @@ const getStudentById = async (req, res) => {
         });
     }
 };
-exports.getStudentById = getStudentById;
-const createStudent = async (req, res) => {
+export const createStudent = async (req, res) => {
     try {
         const { name, role, profilePic, bio } = req.body;
-        const student = await server_1.prisma.student.create({
+        const student = await prisma.student.create({
             data: {
                 name,
                 role,
@@ -81,12 +76,11 @@ const createStudent = async (req, res) => {
         });
     }
 };
-exports.createStudent = createStudent;
-const updateStudent = async (req, res) => {
+export const updateStudent = async (req, res) => {
     try {
         const { id } = req.params;
         const { name, role, profilePic, bio } = req.body;
-        const student = await server_1.prisma.student.update({
+        const student = await prisma.student.update({
             where: { id },
             data: {
                 name,
@@ -110,11 +104,10 @@ const updateStudent = async (req, res) => {
         });
     }
 };
-exports.updateStudent = updateStudent;
-const deleteStudent = async (req, res) => {
+export const deleteStudent = async (req, res) => {
     try {
         const { id } = req.params;
-        await server_1.prisma.student.delete({
+        await prisma.student.delete({
             where: { id },
         });
         const response = {
@@ -131,5 +124,4 @@ const deleteStudent = async (req, res) => {
         });
     }
 };
-exports.deleteStudent = deleteStudent;
 //# sourceMappingURL=studentController.js.map

@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Backend API for Science 1B website with Prisma ORM",
   "main": "dist/server.js",
+  "type": "module",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "dev": "nodemon src/server.ts",
     "build": "tsc",

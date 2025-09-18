@@ -5,8 +5,8 @@ import {
   createArticle,
   updateArticle,
   deleteArticle,
-} from '../controllers/articleController';
-import { validateArticle, handleValidationErrors } from '../middleware/validation';
+} from '../controllers/articleController.js';
+import { validateArticle, handleValidationErrors } from '../middleware/validation.js';
 
 const router = express.Router();
 
