@@ -22,6 +22,8 @@ import UploadButton from '@/components/UploadButton';
 import { Modal } from '@/components/Modal';
 import { ToastContainer, useToast } from '@/components/Toast';
 import { RichTextEditor } from '@/components/RichTextEditor';
+import { DragDropGallery } from '@/components/DragDropGallery';
+import { Pagination } from '@/components/Pagination';
 import {
   HomeIcon,
   UserGroupIcon,
@@ -783,9 +785,11 @@ function ArticlesAdmin({ toast }: { toast: any }) {
   const [items, setItems] = useState<any[]>([]);
   const [students, setStudents] = useState<any[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ title: '', content: '', authorId: '', imageUrl: '' });
+  const [form, setForm] = useState({ title: '', content: '', authorId: '', coverImageUrl: '' });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
   async function refresh() {
     setLoading(true);
@@ -811,13 +815,13 @@ function ArticlesAdmin({ toast }: { toast: any }) {
 
   function startEdit(a: any) {
     setEditingId(a.id);
-    setForm({ title: a.title || '', content: a.content || '', authorId: a.authorId || a.author?.id || '', imageUrl: a.coverImageUrl || '' });
+    setForm({ title: a.title || '', content: a.content || '', authorId: a.authorId || a.author?.id || '', coverImageUrl: a.coverImageUrl || '' });
     setIsModalOpen(true);
   }
 
   function startAdd() {
     setEditingId(null);
-    setForm({ title: '', content: '', authorId: '', imageUrl: '' });
+    setForm({ title: '', content: '', authorId: '', coverImageUrl: '' });
     setIsModalOpen(true);
   }
 
@@ -825,14 +829,19 @@ function ArticlesAdmin({ toast }: { toast: any }) {
     e.preventDefault();
     setSaving(true);
     try {
-      const payload: any = { title: form.title, content: form.content, authorId: form.authorId };
+      const payload: any = { 
+        title: form.title, 
+        content: form.content, 
+        authorId: form.authorId,
+        coverImageUrl: form.coverImageUrl || undefined
+      };
       const r = editingId ? await updateArticle(editingId, payload) : await createArticle(payload);
       if (r.success) {
         toast.success(editingId ? 'Article updated successfully!' : 'Article created successfully!');
         await refresh();
         setIsModalOpen(false);
         setEditingId(null);
-        setForm({ title: '', content: '', authorId: '', imageUrl: '' });
+        setForm({ title: '', content: '', authorId: '', coverImageUrl: '' });
       } else {
         toast.error(r.error || 'Failed to save article');
       }
@@ -856,6 +865,16 @@ function ArticlesAdmin({ toast }: { toast: any }) {
     item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.author?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+  const paginatedItems = filteredItems.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   return (
     <div className="space-y-6">
@@ -896,38 +915,59 @@ function ArticlesAdmin({ toast }: { toast: any }) {
             <p className="mt-1 text-sm text-gray-500">Get started by adding a new article.</p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {filteredItems.map((article) => (
-              <motion.div
-                key={article.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-gray-50 rounded-lg p-4 border hover:shadow-md transition-shadow"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="font-medium text-gray-900 mb-1">{article.title}</h3>
-                    <p className="text-sm text-gray-600 mb-2">By {article.author?.name || 'Unknown'}</p>
-                    <p className="text-sm text-gray-700 line-clamp-2">{article.content}</p>
+          <>
+            <div className="space-y-4">
+              {paginatedItems.map((article) => (
+                <motion.div
+                  key={article.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-gray-50 rounded-lg p-4 border hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-start space-x-4">
+                    {article.coverImageUrl && (
+                      <div className="flex-shrink-0">
+                        <img
+                          src={article.coverImageUrl}
+                          alt={article.title}
+                          className="w-20 h-20 object-cover rounded border"
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-gray-900 mb-1">{article.title}</h3>
+                      <p className="text-sm text-gray-600 mb-2">By {article.author?.name || 'Unknown'}</p>
+                      <p className="text-sm text-gray-700 line-clamp-2">{article.content}</p>
+                    </div>
+                    <div className="flex space-x-2 ml-4">
+                      <button
+                        onClick={() => startEdit(article)}
+                        className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => onDelete(article.id)}
+                        className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex space-x-2 ml-4">
-                    <button
-                      onClick={() => startEdit(article)}
-                      className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => onDelete(article.id)}
-                      className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                </motion.div>
+              ))}
+            </div>
+            
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                itemsPerPage={itemsPerPage}
+                totalItems={filteredItems.length}
+              />
+            )}
+          </>
         )}
       </div>
 
@@ -963,6 +1003,25 @@ function ArticlesAdmin({ toast }: { toast: any }) {
                 ))}
               </select>
             </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Cover Image URL</label>
+            <div className="flex gap-2 mb-4">
+              <input
+                type="url"
+                value={form.coverImageUrl}
+                onChange={(e) => setForm({ ...form, coverImageUrl: e.target.value })}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="https://example.com/cover-image.jpg"
+              />
+              <UploadButton onComplete={(url) => setForm({ ...form, coverImageUrl: url })} />
+            </div>
+            {form.coverImageUrl && (
+              <div className="mb-4">
+                <img src={form.coverImageUrl} alt="Cover preview" className="w-32 h-20 object-cover rounded border" />
+              </div>
+            )}
           </div>
           
           <div>
@@ -1004,6 +1063,8 @@ function GalleryAdmin({ toast }: { toast: any }) {
   const [form, setForm] = useState({ imageUrl: '', caption: '', category: '' });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(12);
 
   async function refresh() {
     setLoading(true);
@@ -1068,6 +1129,41 @@ function GalleryAdmin({ toast }: { toast: any }) {
     item.imageUrl?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+  const paginatedItems = filteredItems.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleReorder = async (newItems: any[]) => {
+    // Update local state immediately for better UX
+    setItems(newItems);
+    
+    try {
+      const res = await fetch('https://web-xplc.onrender.com/api/gallery/reorder', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: newItems }),
+      });
+      
+      if (res.ok) {
+        toast.success('Gallery order updated successfully!');
+      } else {
+        toast.error('Failed to update gallery order');
+        // Revert local state on error
+        await refresh();
+      }
+    } catch (error) {
+      toast.error('Failed to update gallery order');
+      // Revert local state on error
+      await refresh();
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-lg shadow-sm border p-6">
@@ -1107,61 +1203,24 @@ function GalleryAdmin({ toast }: { toast: any }) {
             <p className="mt-1 text-sm text-gray-500">Get started by adding a new item.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredItems.map((item) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-gray-50 rounded-lg overflow-hidden border hover:shadow-md transition-shadow"
-              >
-                <div className="aspect-video bg-gray-200">
-                  {item.imageUrl.includes('youtube.com') || item.imageUrl.includes('youtu.be') ? (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-2">
-                          <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                          </svg>
-                        </div>
-                        <p className="text-xs text-gray-600">Video</p>
-                      </div>
-                    </div>
-                  ) : (
-                    <img
-                      src={item.imageUrl}
-                      alt={item.caption || 'Gallery item'}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                      }}
-                    />
-                  )}
-                  <div className="hidden w-full h-full flex items-center justify-center bg-gray-300">
-                    <PhotoIcon className="h-8 w-8 text-gray-500" />
-                  </div>
-                </div>
-                <div className="p-3">
-                  <p className="text-sm text-gray-700 mb-3 line-clamp-2">{item.caption || 'No caption'}</p>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => startEdit(item)}
-                      className="flex-1 px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => onDelete(item.id)}
-                      className="flex-1 px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+          <>
+            <DragDropGallery
+              items={paginatedItems}
+              onReorder={handleReorder}
+              onEdit={startEdit}
+              onDelete={onDelete}
+            />
+            
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                itemsPerPage={itemsPerPage}
+                totalItems={filteredItems.length}
+              />
+            )}
+          </>
         )}
       </div>
 
