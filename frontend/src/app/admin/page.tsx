@@ -15,6 +15,8 @@ import {
   createGalleryItem,
   updateGalleryItem,
   deleteGalleryItem,
+  checkApiHealth,
+  getApiUrl,
 } from '@/lib/api';
 
 type TabKey = 'students' | 'articles' | 'gallery';
@@ -25,44 +27,69 @@ const tabs: { key: TabKey; label: string }[] = [
   { key: 'gallery', label: 'Gallery' },
 ];
 
-function useAdminGate() {
-  const [isAuthed, setIsAuthed] = useState(false);
-
+function HealthBanner() {
+  const [ok, setOk] = useState<boolean | null>(null);
   useEffect(() => {
-    const ok = localStorage.getItem('admin_ok') === '1';
-    if (ok) {
-      setIsAuthed(true);
-      return;
-    }
-    const configured = (process.env.NEXT_PUBLIC_ADMIN_PASSWORD || '').trim();
-    const input = typeof window !== 'undefined' ? prompt('Enter admin password') : '';
-    if (configured && input === configured) {
-      localStorage.setItem('admin_ok', '1');
-      setIsAuthed(true);
-    } else {
-      alert('Unauthorized. Set NEXT_PUBLIC_ADMIN_PASSWORD in Netlify env to use admin.');
-      setIsAuthed(false);
-    }
+    let mounted = true;
+    checkApiHealth().then((r) => { if (mounted) setOk(!!r.success); }).catch(() => setOk(false));
+    return () => { mounted = false; };
   }, []);
-
-  return isAuthed;
+  const apiUrl = getApiUrl();
+  return (
+    <div className={`mb-4 rounded-md border px-3 py-2 text-sm ${ok === false ? 'border-red-300 bg-red-50 text-red-700' : ok === true ? 'border-green-300 bg-green-50 text-green-700' : 'border-yellow-300 bg-yellow-50 text-yellow-700'}`}>
+      <div className="flex items-center justify-between gap-2">
+        <span>Backend: {apiUrl}</span>
+        <span>Status: {ok === null ? 'Checking…' : ok ? 'Online' : 'Offline'}</span>
+      </div>
+    </div>
+  );
 }
 
 export default function AdminPage() {
-  const isAuthed = useAdminGate();
   const [active, setActive] = useState<TabKey>('students');
+  const [isAuthed, setIsAuthed] = useState<boolean>(false);
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  if (!isAuthed) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <p className="text-secondary-600">Access denied.</p>
-      </div>
-    );
+  useEffect(() => {
+    if (localStorage.getItem('admin_ok') === '1') setIsAuthed(true);
+  }, []);
+
+  function tryLogin(e: React.FormEvent) {
+    e.preventDefault();
+    const configured = (process.env.NEXT_PUBLIC_ADMIN_PASSWORD || '').trim();
+    if (!configured) {
+      setError('Admin password not configured. Set NEXT_PUBLIC_ADMIN_PASSWORD in env.');
+      return;
+    }
+    if (password === configured) {
+      localStorage.setItem('admin_ok', '1');
+      setIsAuthed(true);
+      setError('');
+    } else {
+      setError('Invalid password');
+    }
   }
 
   return (
     <section className="section-padding bg-white">
       <div className="container-custom">
+        <HealthBanner />
+        {!isAuthed ? (
+          <div className="max-w-md mx-auto">
+            <div className="card p-6">
+              <h2 className="text-xl font-semibold mb-4">Admin Login</h2>
+              <form onSubmit={tryLogin} className="space-y-3">
+                <label className="block">
+                  <span className="text-sm text-secondary-700">Password</span>
+                  <input type="password" className="input mt-1" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                </label>
+                {error ? <p className="text-sm text-red-600">{error}</p> : null}
+                <button type="submit" className="btn-primary w-full">Sign in</button>
+              </form>
+            </div>
+          </div>
+        ) : (
         <div className="flex flex-col lg:flex-row gap-8">
           <aside className="lg:w-64 w-full">
             <nav className="card p-4 space-y-2">
@@ -102,6 +129,7 @@ export default function AdminPage() {
             </AnimatePresence>
           </main>
         </div>
+        )}
       </div>
     </section>
   );
