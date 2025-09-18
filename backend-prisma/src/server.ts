@@ -75,6 +75,22 @@ app.get('/api/health', (req: Request, res: Response) => {
   });
 });
 
+// Root endpoint - helpful landing message instead of 404
+app.get('/', (req: Request, res: Response) => {
+  res.status(200).json({
+    success: true,
+    message: 'Science 1B Backend (Prisma) - see /api and /health',
+    links: {
+      health: '/health',
+      api_health: '/api/health',
+      students: '/api/students',
+      articles: '/api/articles',
+      gallery: '/api/gallery',
+      admin: process.env.ADMINJS_ENABLED === 'true' ? '/admin' : undefined,
+    },
+  });
+});
+
 // API routes
 app.use('/api/students', studentRoutes);
 app.use('/api/articles', articleRoutes);
