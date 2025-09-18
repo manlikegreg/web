@@ -3,6 +3,7 @@ import AboutPreview from '@/components/AboutPreview';
 import FeaturedArticles from '@/components/FeaturedArticles';
 import GalleryPreview from '@/components/GalleryPreview';
 import StudentsPreview from '@/components/StudentsPreview';
+import LeadershipPreview from '@/components/LeadershipPreview';
 import Achievements from '@/components/Achievements';
 import ScrollAnimation from '@/components/animations/ScrollAnimation';
 
@@ -24,6 +25,9 @@ export default function Home() {
       </ScrollAnimation>
       <ScrollAnimation>
         <StudentsPreview />
+      </ScrollAnimation>
+      <ScrollAnimation>
+        <LeadershipPreview />
       </ScrollAnimation>
     </>
   );

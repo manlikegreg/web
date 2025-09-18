@@ -31,6 +31,22 @@ export interface Student {
   updatedAt: string;
 }
 
+export interface Teacher {
+  id: string;
+  name: string;
+  nickname?: string;
+  role: string;
+  subject?: string;
+  gender?: 'male' | 'female';
+  phone?: string;
+  whatsapp?: string;
+  email?: string;
+  profilePic?: string;
+  bio?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Article {
   id: string;
   title: string;
@@ -164,6 +180,35 @@ class ApiClient {
     });
   }
 
+  // Teachers API
+  async getTeachers(): Promise<ApiResponse<Teacher[]>> {
+    return this.request<Teacher[]>('/teachers');
+  }
+
+  async getTeacher(id: string): Promise<ApiResponse<Teacher>> {
+    return this.request<Teacher>(`/teachers/${id}`);
+  }
+
+  async createTeacher(teacher: Omit<Teacher, 'id' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<Teacher>> {
+    return this.request<Teacher>('/teachers', {
+      method: 'POST',
+      body: JSON.stringify(teacher),
+    });
+  }
+
+  async updateTeacher(id: string, teacher: Partial<Teacher>): Promise<ApiResponse<Teacher>> {
+    return this.request<Teacher>(`/teachers/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(teacher),
+    });
+  }
+
+  async deleteTeacher(id: string): Promise<ApiResponse<null>> {
+    return this.request<null>(`/teachers/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
   // Articles API
   async getArticles(page: number = 1, limit: number = 10): Promise<ApiResponse<Article[]>> {
     return this.request<Article[]>(`/articles?page=${page}&limit=${limit}`);
@@ -273,6 +318,11 @@ export const getStudent = apiClient.getStudent.bind(apiClient);
 export const createStudent = apiClient.createStudent.bind(apiClient);
 export const updateStudent = apiClient.updateStudent.bind(apiClient);
 export const deleteStudent = apiClient.deleteStudent.bind(apiClient);
+export const getTeachers = apiClient.getTeachers.bind(apiClient);
+export const getTeacher = apiClient.getTeacher.bind(apiClient);
+export const createTeacher = apiClient.createTeacher.bind(apiClient);
+export const updateTeacher = apiClient.updateTeacher.bind(apiClient);
+export const deleteTeacher = apiClient.deleteTeacher.bind(apiClient);
 export const getArticles = apiClient.getArticles.bind(apiClient);
 export const getArticle = apiClient.getArticle.bind(apiClient);
 export const createArticle = apiClient.createArticle.bind(apiClient);

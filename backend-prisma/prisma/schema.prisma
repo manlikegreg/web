@@ -29,6 +29,24 @@ model Student {
   @@map("students")
 }
 
+model Teacher {
+  id         String   @id @default(cuid())
+  name       String
+  nickname   String?  // teacher nickname
+  role       String   // e.g., "Mathematics Teacher", "Physics Teacher"
+  subject    String?  // subject they teach
+  gender     String?  // 'male' or 'female'
+  phone      String?  // phone number
+  whatsapp   String?  // whatsapp number/link
+  email      String?  // email address
+  profilePic String?  @map("profile_pic")
+  bio        String?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("teachers")
+}
+
 model Article {
   id            String   @id @default(cuid())
   title         String
