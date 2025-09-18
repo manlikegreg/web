@@ -1,36 +1,35 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Crown, Users, Award, Star } from 'lucide-react';
+import { getLeadershipMembers } from '@/lib/api';
 
-const leadership = [
+// Default fallback data when no leadership members are available
+const defaultLeadership = [
   {
     name: 'Kwame Asante',
-    role: 'Class Prefect',
+    position: 'Class Prefect',
     bio: 'Leading by example with outstanding academic performance and exceptional leadership skills.',
-    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face',
-    achievements: ['Science Fair Winner', 'Debate Champion', 'Student Council Member'],
+    profilePic: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face',
   },
   {
     name: 'Ama Serwaa',
-    role: 'Assistant Prefect',
+    position: 'Assistant Prefect',
     bio: 'Passionate about community service and environmental conservation initiatives.',
-    imageUrl: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300&h=300&fit=crop&crop=face',
-    achievements: ['Community Service Award', 'Environmental Club President', 'Academic Excellence'],
+    profilePic: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300&h=300&fit=crop&crop=face',
   },
   {
     name: 'Kofi Mensah',
-    role: 'Academic Secretary',
+    position: 'Academic Secretary',
     bio: 'Dedicated to helping fellow students achieve their academic goals and maintain high standards.',
-    imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face',
-    achievements: ['Mathematics Olympiad Winner', 'Peer Tutor', 'Research Project Leader'],
+    profilePic: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face',
   },
   {
     name: 'Akosua Osei',
-    role: 'Sports Captain',
+    position: 'Sports Captain',
     bio: 'Promoting physical fitness and team spirit through various sports and athletic activities.',
-    imageUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop&crop=face',
-    achievements: ['Athletics Champion', 'Team Captain', 'Sports Excellence Award'],
+    profilePic: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop&crop=face',
   },
 ];
 
@@ -62,6 +61,46 @@ const committees = [
 ];
 
 export default function Leadership() {
+  const [leadership, setLeadership] = useState(defaultLeadership);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLeadership = async () => {
+      try {
+        const response = await getLeadershipMembers();
+        if (response.success && response.data && response.data.length > 0) {
+          // Transform API data to match component structure
+          const transformedData = response.data.map(member => ({
+            name: member.name,
+            position: member.position,
+            bio: member.bio || 'No bio available',
+            profilePic: member.profilePic || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face'
+          }));
+          setLeadership(transformedData);
+        }
+      } catch (error) {
+        console.error('Error fetching leadership members:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLeadership();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="section-padding bg-white">
+        <div className="container-custom">
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p className="mt-4 text-gray-600">Loading leadership team...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="section-padding bg-white">
       <div className="container-custom">
@@ -94,7 +133,7 @@ export default function Leadership() {
             >
               <div className="relative mb-4">
                 <img
-                  src={leader.imageUrl}
+                  src={leader.profilePic || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face'}
                   alt={leader.name}
                   className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-primary-100 group-hover:border-primary-200 transition-colors"
                 />
@@ -107,22 +146,11 @@ export default function Leadership() {
                 {leader.name}
               </h3>
               <p className="text-primary-600 font-medium mb-3">
-                {leader.role}
+                {leader.position}
               </p>
               <p className="text-secondary-600 text-sm mb-4">
                 {leader.bio}
               </p>
-              
-              <div className="space-y-1">
-                {leader.achievements.map((achievement, idx) => (
-                  <span
-                    key={idx}
-                    className="inline-block px-2 py-1 bg-primary-100 text-primary-700 text-xs rounded-full mr-1 mb-1"
-                  >
-                    {achievement}
-                  </span>
-                ))}
-              </div>
             </motion.div>
           ))}
         </div>
