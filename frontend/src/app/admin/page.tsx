@@ -31,7 +31,7 @@ function HealthBanner() {
   const [ok, setOk] = useState<boolean | null>(null);
   useEffect(() => {
     let mounted = true;
-    checkApiHealth().then((r) => { if (mounted) setOk(!!r.success); }).catch(() => setOk(false));
+    checkApiHealth().then((r) => { if (mounted) setOk(!!r); }).catch(() => setOk(false));
     return () => { mounted = false; };
   }, []);
   const apiUrl = getApiUrl();
