@@ -97,7 +97,7 @@ app.get('/', (req: Request, res: Response) => {
       students: '/api/students',
       articles: '/api/articles',
       gallery: '/api/gallery',
-      admin: process.env.ADMINJS_ENABLED === 'true' ? '/admin' : undefined,
+      settings: '/api/settings',
     },
   });
 });
