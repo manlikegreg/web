@@ -8,9 +8,6 @@ import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 import { getPrisma, disconnectPrisma } from './lib/prisma.js';
 import session from 'express-session';
-import AdminJS from 'adminjs';
-import AdminJSExpress from '@adminjs/express';
-import { buildAdmin } from './admin.js';
 
 import errorHandler from './middleware/errorHandler.js';
 import notFound from './middleware/notFound.js';
@@ -85,6 +82,9 @@ app.use('/api/gallery', galleryRoutes);
 
 // AdminJS panel (protected) - guard with env flag to allow boot without AdminJS
 if (process.env.ADMINJS_ENABLED === 'true') {
+  const { default: AdminJS } = await import('adminjs');
+  const { default: AdminJSExpress } = await import('@adminjs/express');
+  const { buildAdmin } = await import('./admin.js');
   const admin = buildAdmin(prisma);
   const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@science1b.local';
   const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
