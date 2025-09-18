@@ -18,6 +18,7 @@ import {
   checkApiHealth,
   getApiUrl,
 } from '@/lib/api';
+import UploadButton from '@/components/UploadButton';
 
 type TabKey = 'students' | 'articles' | 'gallery';
 
@@ -137,8 +138,11 @@ function StudentsAdmin() {
   async function refresh() {
     setLoading(true);
     try {
-      const r = await getStudents();
-      if (r.success) setItems(r.data || []);
+      const res = await fetch('https://web-xplc.onrender.com/api/students', { cache: 'no-store' });
+      if (res.ok) {
+        const json = await res.json();
+        setItems(json?.data || []);
+      }
     } finally {
       setLoading(false);
     }
@@ -181,6 +185,9 @@ function StudentsAdmin() {
         <Field label="Name"><input className="input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></Field>
         <Field label="Role"><input className="input" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} required /></Field>
         <Field label="Profile Image URL"><input className="input" value={form.profilePic} onChange={(e) => setForm({ ...form, profilePic: e.target.value })} /></Field>
+        <div className="md:col-span-2">
+          <UploadButton onComplete={(url) => setForm({ ...form, profilePic: url })} />
+        </div>
         <Field label="Bio"><textarea className="textarea" value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} /></Field>
         <div className="md:col-span-2 flex items-center gap-4">
           {form.profilePic ? <img src={form.profilePic} alt="preview" className="w-16 h-16 rounded object-cover border" /> : null}
@@ -230,9 +237,18 @@ function ArticlesAdmin() {
   async function refresh() {
     setLoading(true);
     try {
-      const [a, s] = await Promise.all([getArticles(1, 50), getStudents()]);
-      if (a.success) setItems(a.data || []);
-      if (s.success) setStudents(s.data || []);
+      const [aRes, sRes] = await Promise.all([
+        fetch('https://web-xplc.onrender.com/api/articles?page=1&limit=50', { cache: 'no-store' }),
+        fetch('https://web-xplc.onrender.com/api/students', { cache: 'no-store' }),
+      ]);
+      if (aRes.ok) {
+        const a = await aRes.json();
+        setItems(a?.data || []);
+      }
+      if (sRes.ok) {
+        const s = await sRes.json();
+        setStudents(s?.data || []);
+      }
     } finally {
       setLoading(false);
     }
@@ -322,8 +338,11 @@ function GalleryAdmin() {
   async function refresh() {
     setLoading(true);
     try {
-      const r = await getGalleryItems(1, 100);
-      if (r.success) setItems(r.data || []);
+      const res = await fetch('https://web-xplc.onrender.com/api/gallery?page=1&limit=100', { cache: 'no-store' });
+      if (res.ok) {
+        const json = await res.json();
+        setItems(json?.data || []);
+      }
     } finally {
       setLoading(false);
     }
@@ -362,6 +381,9 @@ function GalleryAdmin() {
       <SectionHeader title="Gallery" subtitle="Paste public image/video URLs; backend stores only the URL" />
       <form onSubmit={onSubmit} className="card p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         <Field label="Image/Video URL"><input className="input" value={form.imageUrl} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} required /></Field>
+        <div className="md:col-span-2">
+          <UploadButton onComplete={(url) => setForm({ ...form, imageUrl: url })} />
+        </div>
         <Field label="Caption"><input className="input" value={form.caption} onChange={(e) => setForm({ ...form, caption: e.target.value })} /></Field>
         <div className="md:col-span-2 flex items-center gap-4">
           {form.imageUrl ? <img src={form.imageUrl} alt="preview" className="w-24 h-16 object-cover border rounded" /> : null}
