@@ -10,6 +10,7 @@ import path from 'path';
 import errorHandler from './middleware/errorHandler.js';
 import notFound from './middleware/notFound.js';
 import studentRoutes from './routes/students.js';
+import teacherRoutes from './routes/teachers.js';
 import articleRoutes from './routes/articles.js';
 import galleryRoutes from './routes/gallery.js';
 import leadershipRoutes from './routes/leadership.js';
@@ -66,6 +67,7 @@ app.get('/', (req, res) => {
             health: '/health',
             api_health: '/api/health',
             students: '/api/students',
+            teachers: '/api/teachers',
             articles: '/api/articles',
             gallery: '/api/gallery',
             settings: '/api/settings',
@@ -73,6 +75,7 @@ app.get('/', (req, res) => {
     });
 });
 app.use('/api/students', studentRoutes);
+app.use('/api/teachers', teacherRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/leadership', leadershipRoutes);

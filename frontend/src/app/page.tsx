@@ -12,10 +12,10 @@ export default function Home() {
     <>
       <Hero />
       <ScrollAnimation>
-        <LeadershipPreview />
+        <AboutPreview />
       </ScrollAnimation>
       <ScrollAnimation>
-        <AboutPreview />
+        <LeadershipPreview />
       </ScrollAnimation>
       <ScrollAnimation>
         <StudentsPreview />

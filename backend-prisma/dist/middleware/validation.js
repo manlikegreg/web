@@ -21,6 +21,52 @@ export const validateStudent = [
         .isLength({ max: 500 })
         .withMessage('Bio must not exceed 500 characters'),
 ];
+export const validateTeacher = [
+    body('name')
+        .trim()
+        .notEmpty()
+        .withMessage('Name is required')
+        .isLength({ min: 2, max: 100 })
+        .withMessage('Name must be between 2 and 100 characters'),
+    body('role')
+        .trim()
+        .notEmpty()
+        .withMessage('Role is required')
+        .isLength({ min: 2, max: 50 })
+        .withMessage('Role must be between 2 and 50 characters'),
+    body('nickname')
+        .optional()
+        .isLength({ max: 50 })
+        .withMessage('Nickname must not exceed 50 characters'),
+    body('subject')
+        .optional()
+        .isLength({ max: 100 })
+        .withMessage('Subject must not exceed 100 characters'),
+    body('gender')
+        .optional()
+        .isIn(['male', 'female'])
+        .withMessage('Gender must be either male or female'),
+    body('phone')
+        .optional()
+        .isLength({ max: 20 })
+        .withMessage('Phone must not exceed 20 characters'),
+    body('whatsapp')
+        .optional()
+        .isLength({ max: 20 })
+        .withMessage('WhatsApp must not exceed 20 characters'),
+    body('email')
+        .optional()
+        .isEmail()
+        .withMessage('Email must be a valid email address'),
+    body('profilePic')
+        .optional()
+        .isURL()
+        .withMessage('Profile picture must be a valid URL'),
+    body('bio')
+        .optional()
+        .isLength({ max: 500 })
+        .withMessage('Bio must not exceed 500 characters'),
+];
 export const validateArticle = [
     body('title')
         .trim()
