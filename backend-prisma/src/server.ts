@@ -33,9 +33,13 @@ export const prisma: PrismaClient = getPrisma();
 // Security middleware
 app.use(helmet());
 
-// CORS configuration
+// CORS configuration (allow configured list or reflect request origin)
+const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: allowedOrigins.length ? allowedOrigins : true,
   credentials: true,
 }));
 
