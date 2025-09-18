@@ -1,8 +1,7 @@
 // API client for connecting to the backend
-// Default to deployed backend if env is not provided
-const DEFAULT_BACKEND = 'https://web-xplc.onrender.com';
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || DEFAULT_BACKEND;
-const API_URL = process.env.NEXT_PUBLIC_API_URL || `${API_BASE_URL}/api`;
+// Hardcode deployed backend URL (ignore env overrides)
+const API_BASE_URL = 'https://web-xplc.onrender.com';
+const API_URL = `${API_BASE_URL}/api`;
 
 // Types for API responses
 export interface ApiResponse<T> {
