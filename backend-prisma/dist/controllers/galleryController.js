@@ -1,18 +1,15 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteGalleryItem = exports.updateGalleryItem = exports.createGalleryItem = exports.getGalleryItemById = exports.getAllGalleryItems = void 0;
-const server_1 = require("../server");
-const getAllGalleryItems = async (req, res) => {
+import { prisma } from '../server.js';
+export const getAllGalleryItems = async (req, res) => {
     try {
         const { page = 1, limit = 12 } = req.query;
         const skip = (Number(page) - 1) * Number(limit);
         const [galleryItems, total] = await Promise.all([
-            server_1.prisma.gallery.findMany({
+            prisma.gallery.findMany({
                 skip,
                 take: Number(limit),
                 orderBy: { createdAt: 'desc' },
             }),
-            server_1.prisma.gallery.count(),
+            prisma.gallery.count(),
         ]);
         const totalPages = Math.ceil(total / Number(limit));
         const response = {
@@ -35,11 +32,10 @@ const getAllGalleryItems = async (req, res) => {
         });
     }
 };
-exports.getAllGalleryItems = getAllGalleryItems;
-const getGalleryItemById = async (req, res) => {
+export const getGalleryItemById = async (req, res) => {
     try {
         const { id } = req.params;
-        const galleryItem = await server_1.prisma.gallery.findUnique({
+        const galleryItem = await prisma.gallery.findUnique({
             where: { id },
         });
         if (!galleryItem) {
@@ -63,11 +59,10 @@ const getGalleryItemById = async (req, res) => {
         });
     }
 };
-exports.getGalleryItemById = getGalleryItemById;
-const createGalleryItem = async (req, res) => {
+export const createGalleryItem = async (req, res) => {
     try {
         const { imageUrl, caption } = req.body;
-        const galleryItem = await server_1.prisma.gallery.create({
+        const galleryItem = await prisma.gallery.create({
             data: {
                 imageUrl,
                 caption,
@@ -88,12 +83,11 @@ const createGalleryItem = async (req, res) => {
         });
     }
 };
-exports.createGalleryItem = createGalleryItem;
-const updateGalleryItem = async (req, res) => {
+export const updateGalleryItem = async (req, res) => {
     try {
         const { id } = req.params;
         const { imageUrl, caption } = req.body;
-        const galleryItem = await server_1.prisma.gallery.update({
+        const galleryItem = await prisma.gallery.update({
             where: { id },
             data: {
                 imageUrl,
@@ -115,11 +109,10 @@ const updateGalleryItem = async (req, res) => {
         });
     }
 };
-exports.updateGalleryItem = updateGalleryItem;
-const deleteGalleryItem = async (req, res) => {
+export const deleteGalleryItem = async (req, res) => {
     try {
         const { id } = req.params;
-        await server_1.prisma.gallery.delete({
+        await prisma.gallery.delete({
             where: { id },
         });
         const response = {
@@ -136,5 +129,4 @@ const deleteGalleryItem = async (req, res) => {
         });
     }
 };
-exports.deleteGalleryItem = deleteGalleryItem;
 //# sourceMappingURL=galleryController.js.map

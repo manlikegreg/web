@@ -5,8 +5,8 @@ import {
   createStudent,
   updateStudent,
   deleteStudent,
-} from '../controllers/studentController';
-import { validateStudent, handleValidationErrors } from '../middleware/validation';
+} from '../controllers/studentController.js';
+import { validateStudent, handleValidationErrors } from '../middleware/validation.js';
 
 const router = express.Router();
 

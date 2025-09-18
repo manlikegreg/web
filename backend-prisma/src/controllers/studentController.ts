@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { prisma } from '../server';
-import { ApiResponse, Student } from '../types';
+import { prisma } from '../server.js';
+import { ApiResponse, Student } from '../types/index.js';
 
 // GET /api/students - Get all students
 export const getAllStudents = async (req: Request, res: Response): Promise<void> => {

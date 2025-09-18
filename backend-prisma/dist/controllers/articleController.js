@@ -1,13 +1,10 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteArticle = exports.updateArticle = exports.createArticle = exports.getArticleById = exports.getAllArticles = void 0;
-const server_1 = require("../server");
-const getAllArticles = async (req, res) => {
+import { prisma } from '../server.js';
+export const getAllArticles = async (req, res) => {
     try {
         const { page = 1, limit = 10 } = req.query;
         const skip = (Number(page) - 1) * Number(limit);
         const [articles, total] = await Promise.all([
-            server_1.prisma.article.findMany({
+            prisma.article.findMany({
                 skip,
                 take: Number(limit),
                 orderBy: { createdAt: 'desc' },
@@ -15,7 +12,7 @@ const getAllArticles = async (req, res) => {
                     author: true,
                 },
             }),
-            server_1.prisma.article.count(),
+            prisma.article.count(),
         ]);
         const totalPages = Math.ceil(total / Number(limit));
         const response = {
@@ -38,11 +35,10 @@ const getAllArticles = async (req, res) => {
         });
     }
 };
-exports.getAllArticles = getAllArticles;
-const getArticleById = async (req, res) => {
+export const getArticleById = async (req, res) => {
     try {
         const { id } = req.params;
-        const article = await server_1.prisma.article.findUnique({
+        const article = await prisma.article.findUnique({
             where: { id },
             include: {
                 author: true,
@@ -69,11 +65,10 @@ const getArticleById = async (req, res) => {
         });
     }
 };
-exports.getArticleById = getArticleById;
-const createArticle = async (req, res) => {
+export const createArticle = async (req, res) => {
     try {
         const { title, content, authorId } = req.body;
-        const author = await server_1.prisma.student.findUnique({
+        const author = await prisma.student.findUnique({
             where: { id: authorId },
         });
         if (!author) {
@@ -83,7 +78,7 @@ const createArticle = async (req, res) => {
             });
             return;
         }
-        const article = await server_1.prisma.article.create({
+        const article = await prisma.article.create({
             data: {
                 title,
                 content,
@@ -108,12 +103,11 @@ const createArticle = async (req, res) => {
         });
     }
 };
-exports.createArticle = createArticle;
-const updateArticle = async (req, res) => {
+export const updateArticle = async (req, res) => {
     try {
         const { id } = req.params;
         const { title, content } = req.body;
-        const article = await server_1.prisma.article.update({
+        const article = await prisma.article.update({
             where: { id },
             data: {
                 title,
@@ -138,11 +132,10 @@ const updateArticle = async (req, res) => {
         });
     }
 };
-exports.updateArticle = updateArticle;
-const deleteArticle = async (req, res) => {
+export const deleteArticle = async (req, res) => {
     try {
         const { id } = req.params;
-        await server_1.prisma.article.delete({
+        await prisma.article.delete({
             where: { id },
         });
         const response = {
@@ -159,5 +152,4 @@ const deleteArticle = async (req, res) => {
         });
     }
 };
-exports.deleteArticle = deleteArticle;
 //# sourceMappingURL=articleController.js.map

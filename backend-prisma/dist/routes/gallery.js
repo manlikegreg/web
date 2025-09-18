@@ -1,16 +1,11 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const galleryController_1 = require("../controllers/galleryController");
-const validation_1 = require("../middleware/validation");
-const router = express_1.default.Router();
-router.get('/', galleryController_1.getAllGalleryItems);
-router.get('/:id', galleryController_1.getGalleryItemById);
-router.post('/', validation_1.validateGallery, validation_1.handleValidationErrors, galleryController_1.createGalleryItem);
-router.put('/:id', validation_1.validateGallery, validation_1.handleValidationErrors, galleryController_1.updateGalleryItem);
-router.delete('/:id', galleryController_1.deleteGalleryItem);
-exports.default = router;
+import express from 'express';
+import { getAllGalleryItems, getGalleryItemById, createGalleryItem, updateGalleryItem, deleteGalleryItem, } from '../controllers/galleryController.js';
+import { validateGallery, handleValidationErrors } from '../middleware/validation.js';
+const router = express.Router();
+router.get('/', getAllGalleryItems);
+router.get('/:id', getGalleryItemById);
+router.post('/', validateGallery, handleValidationErrors, createGalleryItem);
+router.put('/:id', validateGallery, handleValidationErrors, updateGalleryItem);
+router.delete('/:id', deleteGalleryItem);
+export default router;
 //# sourceMappingURL=gallery.js.map
