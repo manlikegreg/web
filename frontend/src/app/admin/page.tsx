@@ -35,7 +35,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 
-type TabKey = 'home' | 'about' | 'students' | 'articles' | 'gallery' | 'contact';
+type TabKey = 'home' | 'about' | 'students' | 'articles' | 'gallery' | 'contact' | 'leadership';
 
 const tabs: { key: TabKey; label: string; icon: any }[] = [
   { key: 'home', label: 'Home', icon: HomeIcon },
@@ -43,6 +43,7 @@ const tabs: { key: TabKey; label: string; icon: any }[] = [
   { key: 'students', label: 'Students', icon: UserGroupIcon },
   { key: 'articles', label: 'Articles', icon: DocumentTextIcon },
   { key: 'gallery', label: 'Gallery', icon: PhotoIcon },
+  { key: 'leadership', label: 'Leadership Team', icon: UserGroupIcon },
   { key: 'contact', label: 'Contact', icon: ChatBubbleLeftRightIcon },
 ];
 
@@ -152,6 +153,11 @@ export default function AdminPage() {
               {active === 'gallery' && (
                 <motion.div key="gallery" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
                   <GalleryAdmin toast={toast} />
+                </motion.div>
+              )}
+              {active === 'leadership' && (
+                <motion.div key="leadership" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
+                  <LeadershipAdmin toast={toast} />
                 </motion.div>
               )}
               {active === 'contact' && (
@@ -616,7 +622,7 @@ function StudentsAdmin({ toast }: { toast: any }) {
     const r = await deleteStudent(id);
     if (r.success) {
       toast.success('Student deleted successfully!');
-      refresh();
+      await refresh();
     } else {
       toast.error('Failed to delete student');
     }
@@ -855,7 +861,7 @@ function ArticlesAdmin({ toast }: { toast: any }) {
     const r = await deleteArticle(id);
     if (r.success) {
       toast.success('Article deleted successfully!');
-      refresh();
+      await refresh();
     } else {
       toast.error('Failed to delete article');
     }
@@ -1118,7 +1124,7 @@ function GalleryAdmin({ toast }: { toast: any }) {
     const r = await deleteGalleryItem(id);
     if (r.success) {
       toast.success('Gallery item deleted successfully!');
-      refresh();
+      await refresh();
     } else {
       toast.error('Failed to delete gallery item');
     }
@@ -1280,6 +1286,124 @@ function GalleryAdmin({ toast }: { toast: any }) {
           </div>
         </form>
       </Modal>
+    </div>
+  );
+}
+
+// Leadership Team Admin Component
+function LeadershipAdmin({ toast }: { toast: any }) {
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({
+    'leadership.title': '',
+    'leadership.description': '',
+    'leadership.image': '',
+    'leadership.team': '',
+  });
+
+  async function loadData() {
+    setLoading(true);
+    try {
+      const res = await fetch('https://web-xplc.onrender.com/api/settings/leadership', { cache: 'no-store' });
+      if (res.ok) {
+        const json = await res.json();
+        setForm(json?.data || {});
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { loadData(); }, []);
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const res = await fetch('https://web-xplc.onrender.com/api/settings/leadership', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (res.ok) {
+        toast.success('Leadership team content updated successfully!');
+        await loadData();
+      } else {
+        toast.error('Failed to update leadership team content');
+      }
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-white rounded-lg shadow-sm border p-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Leadership Team</h2>
+        <p className="text-gray-600 mb-6">Manage the leadership team section content</p>
+        
+        <form onSubmit={onSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Section Title</label>
+            <input
+              type="text"
+              value={form['leadership.title']}
+              onChange={(e) => setForm({ ...form, 'leadership.title': e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Our Leadership Team"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            <RichTextEditor
+              value={form['leadership.description']}
+              onChange={(value) => setForm({ ...form, 'leadership.description': value })}
+              placeholder="Describe the leadership team and their roles..."
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Team Image URL</label>
+            <div className="flex gap-4">
+              <input
+                type="url"
+                value={form['leadership.image']}
+                onChange={(e) => setForm({ ...form, 'leadership.image': e.target.value })}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="https://example.com/team-image.jpg"
+              />
+              <UploadButton onComplete={(url) => setForm({ ...form, 'leadership.image': url })} />
+            </div>
+            {form['leadership.image'] && (
+              <div className="mt-2">
+                <img src={form['leadership.image']} alt="Team preview" className="w-32 h-20 object-cover rounded border" />
+              </div>
+            )}
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Team Members (JSON format)</label>
+            <textarea
+              value={form['leadership.team']}
+              onChange={(e) => setForm({ ...form, 'leadership.team': e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-32"
+              placeholder='[{"name": "John Doe", "position": "Class President", "image": "https://example.com/john.jpg"}, {"name": "Jane Smith", "position": "Vice President", "image": "https://example.com/jane.jpg"}]'
+            />
+            <p className="text-sm text-gray-500 mt-1">Enter team members as JSON array with name, position, and image fields</p>
+          </div>
+          
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={saving}
+              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {saving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

@@ -1,7 +1,9 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Microscope, Users, BookOpen, Lightbulb } from 'lucide-react';
+import { getStudents } from '@/lib/api';
 
 const features = [
   {
@@ -36,6 +38,41 @@ const subjects = [
 ];
 
 export default function ClassProfile() {
+  const [stats, setStats] = useState({
+    total: 45,
+    male: 24,
+    female: 21,
+    averageAge: 17
+  });
+
+  useEffect(() => {
+    const fetchStudentStats = async () => {
+      try {
+        const response = await getStudents();
+        if (response.success && response.data) {
+          const total = response.data.length;
+          const male = response.data.filter(s => 
+            s.role.toLowerCase().includes('male') || 
+            s.name.toLowerCase().includes('mr') ||
+            s.role.toLowerCase().includes('boy')
+          ).length;
+          const female = total - male;
+          
+          setStats({
+            total,
+            male,
+            female,
+            averageAge: 17 // Default average age
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching student stats:', error);
+      }
+    };
+
+    fetchStudentStats();
+  }, []);
+
   return (
     <section className="section-padding bg-secondary-50">
       <div className="container-custom">
@@ -139,22 +176,22 @@ export default function ClassProfile() {
             <div className="space-y-6">
               <div className="flex items-center justify-between p-4 bg-primary-50 rounded-lg">
                 <span className="text-secondary-700">Total Students</span>
-                <span className="text-2xl font-bold text-primary-600">45</span>
+                <span className="text-2xl font-bold text-primary-600">{stats.total}</span>
               </div>
               
               <div className="flex items-center justify-between p-4 bg-accent-50 rounded-lg">
                 <span className="text-secondary-700">Male Students</span>
-                <span className="text-2xl font-bold text-accent-600">24</span>
+                <span className="text-2xl font-bold text-accent-600">{stats.male}</span>
               </div>
               
               <div className="flex items-center justify-between p-4 bg-primary-50 rounded-lg">
                 <span className="text-secondary-700">Female Students</span>
-                <span className="text-2xl font-bold text-primary-600">21</span>
+                <span className="text-2xl font-bold text-primary-600">{stats.female}</span>
               </div>
               
               <div className="flex items-center justify-between p-4 bg-accent-50 rounded-lg">
                 <span className="text-secondary-700">Average Age</span>
-                <span className="text-2xl font-bold text-accent-600">17</span>
+                <span className="text-2xl font-bold text-accent-600">{stats.averageAge}</span>
               </div>
             </div>
 

@@ -74,5 +74,20 @@ router.put('/contact', express.json(), async (req, res) => {
   res.json({ success: true });
 });
 
+router.get('/leadership', async (_req, res) => {
+  const keys = ['leadership.title','leadership.description','leadership.image','leadership.team'];
+  const rows = await prisma.setting.findMany({ where: { key: { in: keys } } });
+  const map: any = {}; rows.forEach(r => map[r.key] = r.value);
+  res.json({ success: true, data: map });
+});
+
+router.put('/leadership', express.json(), async (req, res) => {
+  const payload = req.body as Record<string, string>;
+  for (const k of Object.keys(payload || {})) {
+    await prisma.setting.upsert({ where: { key: k }, update: { value: String(payload[k] ?? '') }, create: { key: k, value: String(payload[k] ?? '') } });
+  }
+  res.json({ success: true });
+});
+
 export default router;
 
