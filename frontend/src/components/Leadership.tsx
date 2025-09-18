@@ -61,7 +61,7 @@ const committees = [
 ];
 
 export default function Leadership() {
-  const [leadership, setLeadership] = useState(defaultLeadership);
+  const [leadership, setLeadership] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -82,10 +82,12 @@ export default function Leadership() {
           }));
           setLeadership(transformedData);
         } else {
-          console.log('No leadership members found, using default data');
+          console.log('No leadership members found, showing empty state');
+          setLeadership([]);
         }
       } catch (error) {
         console.error('Error fetching leadership members:', error);
+        setLeadership([]);
       } finally {
         setLoading(false);
       }
@@ -127,8 +129,17 @@ export default function Leadership() {
         </motion.div>
 
         {/* Leadership Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          {leadership.map((leader, index) => (
+        {leadership.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Crown className="w-8 h-8 text-gray-400" />
+            </div>
+            <h3 className="text-xl font-medium text-gray-900 mb-2">No Leadership Members</h3>
+            <p className="text-gray-600">Leadership team members will appear here once they're added through the admin panel.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            {leadership.map((leader, index) => (
             <motion.div
               key={leader.name}
               initial={{ opacity: 0, y: 30 }}
@@ -158,8 +169,9 @@ export default function Leadership() {
                 {leader.bio}
               </p>
             </motion.div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Committees */}
         <motion.div

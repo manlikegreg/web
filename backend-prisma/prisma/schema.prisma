@@ -13,6 +13,7 @@ datasource db {
 model Student {
   id         String   @id @default(cuid())
   name       String
+  nickname   String?  // student nickname
   role       String
   gender     String?  // 'male' or 'female'
   phone      String?  // phone number

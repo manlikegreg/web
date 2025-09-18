@@ -20,6 +20,7 @@ export interface ApiResponse<T> {
 export interface Student {
   id: string;
   name: string;
+  nickname?: string;
   role: string;
   gender?: 'male' | 'female';
   phone?: string;

@@ -9,6 +9,7 @@ import ScrollAnimation from '@/components/animations/ScrollAnimation';
 interface Student {
   id: string;
   name: string;
+  nickname?: string;
   role: string;
   gender?: 'male' | 'female';
   phone?: string;
@@ -234,7 +235,10 @@ export default function StudentsPage() {
                         </div>
                       )}
                       
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">{student.name}</h3>
+                      <h3 className="text-xl font-bold text-gray-900 mb-1">{student.name}</h3>
+                      {student.nickname && (
+                        <p className="text-sm text-gray-500 mb-2">"{student.nickname}"</p>
+                      )}
                       <p className="text-blue-600 font-medium mb-3">{student.role}</p>
                       
                       {student.bio && (
