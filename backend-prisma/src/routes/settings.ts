@@ -32,7 +32,7 @@ router.put('/', express.json(), async (req, res) => {
 router.get('/home', async (_req, res) => {
   const keys = ['home.title','home.subtitle','home.cta','home.heroImage'];
   const rows = await prisma.setting.findMany({ where: { key: { in: keys } } });
-  const map: any = {}; rows.forEach(r => map[r.key] = r.value);
+  const map: Record<string, string> = {}; rows.forEach((r: { key: string; value: string }) => map[r.key] = r.value);
   res.json({ success: true, data: map });
 });
 
@@ -47,7 +47,7 @@ router.put('/home', express.json(), async (req, res) => {
 router.get('/about', async (_req, res) => {
   const keys = ['about.history','about.achievements','about.motto','about.image'];
   const rows = await prisma.setting.findMany({ where: { key: { in: keys } } });
-  const map: any = {}; rows.forEach(r => map[r.key] = r.value);
+  const map: Record<string, string> = {}; rows.forEach((r: { key: string; value: string }) => map[r.key] = r.value);
   res.json({ success: true, data: map });
 });
 
@@ -62,7 +62,7 @@ router.put('/about', express.json(), async (req, res) => {
 router.get('/contact', async (_req, res) => {
   const keys = ['contact.description','contact.email','contact.phone','contact.socials'];
   const rows = await prisma.setting.findMany({ where: { key: { in: keys } } });
-  const map: any = {}; rows.forEach(r => map[r.key] = r.value);
+  const map: Record<string, string> = {}; rows.forEach((r: { key: string; value: string }) => map[r.key] = r.value);
   res.json({ success: true, data: map });
 });
 
@@ -77,7 +77,7 @@ router.put('/contact', express.json(), async (req, res) => {
 router.get('/leadership', async (_req, res) => {
   const keys = ['leadership.title','leadership.description','leadership.image','leadership.team'];
   const rows = await prisma.setting.findMany({ where: { key: { in: keys } } });
-  const map: any = {}; rows.forEach(r => map[r.key] = r.value);
+  const map: Record<string, string> = {}; rows.forEach((r: { key: string; value: string }) => map[r.key] = r.value);
   res.json({ success: true, data: map });
 });
 

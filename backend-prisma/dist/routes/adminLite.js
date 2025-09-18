@@ -51,7 +51,7 @@ router.get('/students', async (req, res) => {
   <table>
     <thead><tr><th>Name</th><th>Role</th><th>Actions</th></tr></thead>
     <tbody>
-      ${students.map(s => `<tr><td>${s.name}</td><td>${s.role}</td><td>
+      ${students.map((s) => `<tr><td>${s.name}</td><td>${s.role}</td><td>
         <form method="post" action="/admin-lite/students/${s.id}?_method=delete" style="display:inline">
           <button type="submit">Delete</button>
         </form>

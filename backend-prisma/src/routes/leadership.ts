@@ -37,15 +37,15 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Leadership member not found' });
     }
     
-    res.json({ success: true, data: member });
+    return res.json({ success: true, data: member });
   } catch (error) {
     console.error('Error fetching leadership member:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch leadership member' });
+    return res.status(500).json({ success: false, error: 'Failed to fetch leadership member' });
   }
 });
 
 // Create new leadership member
-router.post('/', validateLeadership, async (req, res) => {
+router.post('/', validateLeadership, async (req: express.Request, res: express.Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -64,15 +64,15 @@ router.post('/', validateLeadership, async (req, res) => {
       }
     });
     
-    res.status(201).json({ success: true, data: member });
+    return res.status(201).json({ success: true, data: member });
   } catch (error) {
     console.error('Error creating leadership member:', error);
-    res.status(500).json({ success: false, error: 'Failed to create leadership member' });
+    return res.status(500).json({ success: false, error: 'Failed to create leadership member' });
   }
 });
 
 // Update leadership member
-router.put('/:id', validateLeadership, async (req, res) => {
+router.put('/:id', validateLeadership, async (req: express.Request, res: express.Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -92,10 +92,10 @@ router.put('/:id', validateLeadership, async (req, res) => {
       }
     });
     
-    res.json({ success: true, data: member });
+    return res.json({ success: true, data: member });
   } catch (error) {
     console.error('Error updating leadership member:', error);
-    res.status(500).json({ success: false, error: 'Failed to update leadership member' });
+    return res.status(500).json({ success: false, error: 'Failed to update leadership member' });
   }
 });
 
@@ -130,10 +130,10 @@ router.put('/reorder', express.json(), async (req, res) => {
       });
     }
     
-    res.json({ success: true });
+    return res.json({ success: true });
   } catch (error) {
     console.error('Error reordering leadership members:', error);
-    res.status(500).json({ success: false, error: 'Failed to reorder leadership members' });
+    return res.status(500).json({ success: false, error: 'Failed to reorder leadership members' });
   }
 });
 
