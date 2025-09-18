@@ -62,11 +62,15 @@ class ApiClient {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
+    const headers: Record<string, string> = {
+      ...(options.headers as any),
+    };
+    const method = (options.method || 'GET').toUpperCase();
+    if (method !== 'GET' && !headers['Content-Type']) {
+      headers['Content-Type'] = 'application/json';
+    }
     const config: RequestInit = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      headers,
       mode: 'cors',
       signal: controller.signal,
       ...options,
