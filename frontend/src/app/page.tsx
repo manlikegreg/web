@@ -15,16 +15,16 @@ export default function Home() {
         <AboutPreview />
       </ScrollAnimation>
       <ScrollAnimation>
-        <Achievements />
-      </ScrollAnimation>
-      <ScrollAnimation>
-        <FeaturedArticles />
+        <StudentsPreview />
       </ScrollAnimation>
       <ScrollAnimation>
         <GalleryPreview />
       </ScrollAnimation>
       <ScrollAnimation>
-        <StudentsPreview />
+        <Achievements />
+      </ScrollAnimation>
+      <ScrollAnimation>
+        <FeaturedArticles />
       </ScrollAnimation>
       <ScrollAnimation>
         <LeadershipPreview />
