@@ -1,6 +1,6 @@
 // API client for connecting to the backend
 // Hardcode deployed backend URL (ignore env overrides)
-const API_BASE_URL = 'https://web-xplc.onrender.com';
+const API_BASE_URL = 'https://science-1b-backend-prisma.onrender.com';
 const API_URL = `${API_BASE_URL}/api`;
 
 // Types for API responses
@@ -216,28 +216,26 @@ class ApiClient {
 // Create and export API client instance
 export const apiClient = new ApiClient();
 
-// Export individual methods for convenience
-export const {
-  getStudents,
-  getStudent,
-  createStudent,
-  updateStudent,
-  deleteStudent,
-  getArticles,
-  getArticle,
-  createArticle,
-  updateArticle,
-  deleteArticle,
-  getGalleryItems,
-  getGalleryItem,
-  createGalleryItem,
-  updateGalleryItem,
-  deleteGalleryItem,
-  getSettings,
-  updateSettings,
-  uploadFile,
-  healthCheck,
-} = apiClient;
+// Export individual methods for convenience with proper binding
+export const getStudents = apiClient.getStudents.bind(apiClient);
+export const getStudent = apiClient.getStudent.bind(apiClient);
+export const createStudent = apiClient.createStudent.bind(apiClient);
+export const updateStudent = apiClient.updateStudent.bind(apiClient);
+export const deleteStudent = apiClient.deleteStudent.bind(apiClient);
+export const getArticles = apiClient.getArticles.bind(apiClient);
+export const getArticle = apiClient.getArticle.bind(apiClient);
+export const createArticle = apiClient.createArticle.bind(apiClient);
+export const updateArticle = apiClient.updateArticle.bind(apiClient);
+export const deleteArticle = apiClient.deleteArticle.bind(apiClient);
+export const getGalleryItems = apiClient.getGalleryItems.bind(apiClient);
+export const getGalleryItem = apiClient.getGalleryItem.bind(apiClient);
+export const createGalleryItem = apiClient.createGalleryItem.bind(apiClient);
+export const updateGalleryItem = apiClient.updateGalleryItem.bind(apiClient);
+export const deleteGalleryItem = apiClient.deleteGalleryItem.bind(apiClient);
+export const getSettings = apiClient.getSettings.bind(apiClient);
+export const updateSettings = apiClient.updateSettings.bind(apiClient);
+export const uploadFile = apiClient.uploadFile.bind(apiClient);
+export const healthCheck = apiClient.healthCheck.bind(apiClient);
 
 // Utility function to check if API is available
 export async function checkApiHealth(): Promise<boolean> {
