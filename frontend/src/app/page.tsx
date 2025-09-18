@@ -12,6 +12,9 @@ export default function Home() {
     <>
       <Hero />
       <ScrollAnimation>
+        <LeadershipPreview />
+      </ScrollAnimation>
+      <ScrollAnimation>
         <AboutPreview />
       </ScrollAnimation>
       <ScrollAnimation>
@@ -25,9 +28,6 @@ export default function Home() {
       </ScrollAnimation>
       <ScrollAnimation>
         <FeaturedArticles />
-      </ScrollAnimation>
-      <ScrollAnimation>
-        <LeadershipPreview />
       </ScrollAnimation>
     </>
   );
