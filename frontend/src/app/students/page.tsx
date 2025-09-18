@@ -10,6 +10,7 @@ interface Student {
   id: string;
   name: string;
   role: string;
+  gender?: 'male' | 'female';
   profilePic?: string;
   bio?: string;
   createdAt: string;
@@ -35,8 +36,8 @@ export default function StudentsPage() {
           
           // Calculate stats
           const total = response.data.length;
-          const male = response.data.filter(s => s.role.toLowerCase().includes('male') || s.name.toLowerCase().includes('mr')).length;
-          const female = total - male;
+          const male = response.data.filter(s => s.gender === 'male').length;
+          const female = response.data.filter(s => s.gender === 'female').length;
           
           setStats({
             total,

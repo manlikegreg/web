@@ -569,7 +569,7 @@ function StudentsAdmin({ toast }: { toast: any }) {
   const [saving, setSaving] = useState(false);
   const [items, setItems] = useState<any[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: '', role: '', profilePic: '', bio: '' });
+  const [form, setForm] = useState({ name: '', role: '', gender: '', profilePic: '', bio: '' });
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   async function refresh() {
@@ -591,13 +591,13 @@ function StudentsAdmin({ toast }: { toast: any }) {
 
   function startEdit(s: any) {
     setEditingId(s.id);
-    setForm({ name: s.name || '', role: s.role || '', profilePic: s.profilePic || '', bio: s.bio || '' });
+    setForm({ name: s.name || '', role: s.role || '', gender: s.gender || '', profilePic: s.profilePic || '', bio: s.bio || '' });
     setIsModalOpen(true);
   }
 
   function startAdd() {
     setEditingId(null);
-    setForm({ name: '', role: '', profilePic: '', bio: '' });
+    setForm({ name: '', role: '', gender: '', profilePic: '', bio: '' });
     setIsModalOpen(true);
   }
 
@@ -605,14 +605,14 @@ function StudentsAdmin({ toast }: { toast: any }) {
     e.preventDefault();
     setSaving(true);
     try {
-      const payload = { name: form.name, role: form.role, profilePic: form.profilePic || undefined, bio: form.bio || undefined } as any;
+      const payload = { name: form.name, role: form.role, gender: form.gender || undefined, profilePic: form.profilePic || undefined, bio: form.bio || undefined } as any;
       const r = editingId ? await updateStudent(editingId, payload) : await createStudent(payload);
       if (r.success) {
         toast.success(editingId ? 'Student updated successfully!' : 'Student created successfully!');
         await refresh();
         setIsModalOpen(false);
         setEditingId(null);
-        setForm({ name: '', role: '', profilePic: '', bio: '' });
+        setForm({ name: '', role: '', gender: '', profilePic: '', bio: '' });
       } else {
         toast.error(r.error || 'Failed to save student');
       }
@@ -735,6 +735,34 @@ function StudentsAdmin({ toast }: { toast: any }) {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
               />
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+            <div className="flex space-x-4">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="gender"
+                  value="male"
+                  checked={form.gender === 'male'}
+                  onChange={(e) => setForm({ ...form, gender: e.target.value })}
+                  className="mr-2 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-700">Male</span>
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="gender"
+                  value="female"
+                  checked={form.gender === 'female'}
+                  onChange={(e) => setForm({ ...form, gender: e.target.value })}
+                  className="mr-2 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-700">Female</span>
+              </label>
             </div>
           </div>
           

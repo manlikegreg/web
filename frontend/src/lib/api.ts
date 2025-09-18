@@ -21,6 +21,7 @@ export interface Student {
   id: string;
   name: string;
   role: string;
+  gender?: 'male' | 'female';
   profilePic?: string;
   bio?: string;
   createdAt: string;
