@@ -90,6 +90,30 @@ class ApiClient {
     return this.request<Student[]>('/students');
   }
 
+  // Settings API (site-wide content like Home/About/Contact)
+  async getSettings(): Promise<ApiResponse<Record<string, string>>> {
+    return this.request<Record<string, string>>('/settings');
+  }
+
+  async updateSettings(values: Record<string, string>): Promise<ApiResponse<null>> {
+    return this.request<null>('/settings', {
+      method: 'PUT',
+      body: JSON.stringify(values),
+    });
+  }
+
+  // Upload API
+  async uploadFile(file: File): Promise<ApiResponse<{ url: string }>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch(`${this.baseURL}/upload`, { method: 'POST', body: formData });
+    if (!res.ok) {
+      return { success: false, error: `Upload failed (${res.status})` } as any;
+    }
+    const data = await res.json();
+    return data;
+  }
+
   async getStudent(id: string): Promise<ApiResponse<Student>> {
     return this.request<Student>(`/students/${id}`);
   }
@@ -198,6 +222,9 @@ export const {
   createGalleryItem,
   updateGalleryItem,
   deleteGalleryItem,
+  getSettings,
+  updateSettings,
+  uploadFile,
   healthCheck,
 } = apiClient;
 
