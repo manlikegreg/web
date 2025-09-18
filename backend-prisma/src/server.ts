@@ -7,6 +7,7 @@ import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 import { getPrisma, disconnectPrisma } from './lib/prisma.js';
+import path from 'path';
 import session from 'express-session';
 
 import errorHandler from './middleware/errorHandler.js';
@@ -16,7 +17,9 @@ import notFound from './middleware/notFound.js';
 import studentRoutes from './routes/students.js';
 import articleRoutes from './routes/articles.js';
 import galleryRoutes from './routes/gallery.js';
-import adminLite from './routes/adminLite.js';
+// Uploads and settings routes
+import uploadRoutes from './routes/upload.js';
+import settingsRoutes from './routes/settings.js';
 
 // Load environment variables
 dotenv.config();
@@ -50,6 +53,9 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Compression middleware
 app.use(compression());
+
+// Static files for uploads
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // Logging middleware
 if (process.env.NODE_ENV === 'development') {
@@ -96,52 +102,10 @@ app.get('/', (req: Request, res: Response) => {
 app.use('/api/students', studentRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/gallery', galleryRoutes);
-// Admin Lite (basic HTML) - optional
-if (process.env.ADMIN_LITE_ENABLED === 'true') {
-  app.use('/admin-lite', adminLite);
-}
+app.use('/api/upload', uploadRoutes);
+app.use('/api/settings', settingsRoutes);
 
-// AdminJS panel (protected) - guard with env flag to allow boot without AdminJS
-if (process.env.ADMINJS_ENABLED === 'true') {
-  const { default: AdminJS } = await import('adminjs');
-  const { default: AdminJSExpress } = await import('@adminjs/express');
-  const { buildAdmin } = await import('./admin.js');
-  const admin = buildAdmin(prisma);
-  const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@science1b.local';
-  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
-  const SESSION_SECRET = process.env.SESSION_SECRET || 'science1b-secret';
-
-  app.use(
-    session({
-      secret: SESSION_SECRET,
-      resave: false,
-      saveUninitialized: false,
-      cookie: { secure: false },
-    })
-  );
-
-  const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
-    admin,
-    {
-      authenticate: async (email, password) => {
-        if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-          return { email } as any;
-        }
-        return null;
-      },
-      cookieName: 'science1b_admin',
-      cookiePassword: SESSION_SECRET,
-    },
-    null,
-    {
-      resave: false,
-      saveUninitialized: false,
-      secret: SESSION_SECRET,
-    }
-  );
-
-  app.use(admin.options.rootPath, adminRouter);
-}
+// Note: Backend admin UIs removed.
 
 // Error handling middleware
 app.use(notFound);

@@ -48,3 +48,10 @@ model Gallery {
 
   @@map("gallery")
 }
+
+model Setting {
+  key   String @id
+  value String
+
+  @@map("settings")
+}
