@@ -204,8 +204,10 @@ export const {
 // Utility function to check if API is available
 export async function checkApiHealth(): Promise<boolean> {
   try {
-    const response = await healthCheck();
-    return response.success;
+    const res = await fetch(`${API_BASE_URL}/health`);
+    if (!res.ok) return false;
+    const data = await res.json();
+    return !!data?.success;
   } catch {
     return false;
   }
@@ -218,5 +220,5 @@ export function getApiBaseUrl(): string {
 
 // Utility function to get full API URL
 export function getApiUrl(): string {
-  return API_URL;
+  return API_BASE_URL;
 }
