@@ -220,7 +220,7 @@ function HomeAdmin({ toast }: { toast: any }) {
   async function loadData() {
     setLoading(true);
     try {
-      const res = await fetch('https://science-1b-backend-prisma.onrender.com/api/settings/home', { cache: 'no-store' });
+      const res = await fetch('https://web-xplc.onrender.com/api/settings/home', { cache: 'no-store' });
       if (res.ok) {
         const json = await res.json();
         setForm(json?.data || {});
@@ -236,7 +236,7 @@ function HomeAdmin({ toast }: { toast: any }) {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch('https://science-1b-backend-prisma.onrender.com/api/settings/home', {
+      const res = await fetch('https://web-xplc.onrender.com/api/settings/home', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -341,7 +341,7 @@ function AboutAdmin({ toast }: { toast: any }) {
   async function loadData() {
     setLoading(true);
     try {
-      const res = await fetch('https://science-1b-backend-prisma.onrender.com/api/settings/about', { cache: 'no-store' });
+      const res = await fetch('https://web-xplc.onrender.com/api/settings/about', { cache: 'no-store' });
       if (res.ok) {
         const json = await res.json();
         setForm(json?.data || {});
@@ -357,7 +357,7 @@ function AboutAdmin({ toast }: { toast: any }) {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch('https://science-1b-backend-prisma.onrender.com/api/settings/about', {
+      const res = await fetch('https://web-xplc.onrender.com/api/settings/about', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -457,7 +457,7 @@ function ContactAdmin({ toast }: { toast: any }) {
   async function loadData() {
     setLoading(true);
     try {
-      const res = await fetch('https://science-1b-backend-prisma.onrender.com/api/settings/contact', { cache: 'no-store' });
+      const res = await fetch('https://web-xplc.onrender.com/api/settings/contact', { cache: 'no-store' });
       if (res.ok) {
         const json = await res.json();
         setForm(json?.data || {});
@@ -473,7 +473,7 @@ function ContactAdmin({ toast }: { toast: any }) {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch('https://science-1b-backend-prisma.onrender.com/api/settings/contact', {
+      const res = await fetch('https://web-xplc.onrender.com/api/settings/contact', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -565,7 +565,7 @@ function StudentsAdmin({ toast }: { toast: any }) {
   async function refresh() {
     setLoading(true);
     try {
-      const res = await fetch('https://science-1b-backend-prisma.onrender.com/api/students', { cache: 'no-store' });
+      const res = await fetch('https://web-xplc.onrender.com/api/students', { cache: 'no-store' });
       if (res.ok) {
         const json = await res.json();
         setItems(json?.data || []);
@@ -795,8 +795,8 @@ function ArticlesAdmin({ toast }: { toast: any }) {
     setLoading(true);
     try {
       const [aRes, sRes] = await Promise.all([
-        fetch('https://science-1b-backend-prisma.onrender.com/api/articles?page=1&limit=50', { cache: 'no-store' }),
-        fetch('https://science-1b-backend-prisma.onrender.com/api/students', { cache: 'no-store' }),
+        fetch('https://web-xplc.onrender.com/api/articles?page=1&limit=50', { cache: 'no-store' }),
+        fetch('https://web-xplc.onrender.com/api/students', { cache: 'no-store' }),
       ]);
       if (aRes.ok) {
         const a = await aRes.json();
@@ -1069,7 +1069,7 @@ function GalleryAdmin({ toast }: { toast: any }) {
   async function refresh() {
     setLoading(true);
     try {
-      const res = await fetch('https://science-1b-backend-prisma.onrender.com/api/gallery?page=1&limit=100', { cache: 'no-store' });
+      const res = await fetch('https://web-xplc.onrender.com/api/gallery?page=1&limit=100', { cache: 'no-store' });
       if (res.ok) {
         const json = await res.json();
         setItems(json?.data || []);
@@ -1144,7 +1144,7 @@ function GalleryAdmin({ toast }: { toast: any }) {
     setItems(newItems);
     
     try {
-      const res = await fetch('https://science-1b-backend-prisma.onrender.com/api/gallery/reorder', {
+      const res = await fetch('https://web-xplc.onrender.com/api/gallery/reorder', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ items: newItems }),

@@ -13,7 +13,7 @@ export default function FeaturedArticles() {
 
   const fetchArticles = async () => {
     try {
-      const res = await fetch('https://science-1b-backend-prisma.onrender.com/api/articles?page=1&limit=3', { 
+      const res = await fetch('https://web-xplc.onrender.com/api/articles?page=1&limit=3', { 
         cache: 'no-store',
         headers: {
           'Cache-Control': 'no-cache',
