@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Users, User, ArrowRight } from 'lucide-react';
+import { Users, User, ArrowRight, GraduationCap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useAutoRefresh } from '@/hooks/useAutoRefresh';
 
@@ -16,8 +16,23 @@ interface Student {
   bio?: string;
 }
 
+interface Teacher {
+  id: string;
+  name: string;
+  nickname?: string;
+  role: string;
+  subject?: string;
+  gender?: 'male' | 'female';
+  profilePic?: string;
+  bio?: string;
+}
+
+type Person = Student | Teacher;
+
 export default function StudentsPreview() {
   const [students, setStudents] = useState<Student[]>([]);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [activeTab, setActiveTab] = useState<'students' | 'teachers'>('students');
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     total: 0,
@@ -25,42 +40,56 @@ export default function StudentsPreview() {
     female: 0
   });
 
-  const fetchStudents = async () => {
+  const fetchData = async () => {
     try {
-      const res = await fetch('https://web-xplc.onrender.com/api/students', { 
+      // Fetch students
+      const studentsRes = await fetch('https://web-xplc.onrender.com/api/students', { 
         cache: 'no-store',
         headers: {
           'Cache-Control': 'no-cache',
         }
       });
-      if (res.ok) {
-        const data = await res.json();
-        const studentsData = data?.data || [];
-        setStudents(studentsData.slice(0, 6)); // Show only first 6 students
+      if (studentsRes.ok) {
+        const studentsData = await studentsRes.json();
+        const studentsList = studentsData?.data || [];
+        setStudents(studentsList.slice(0, 6)); // Show only first 6 students
         
         // Calculate stats
-        const total = studentsData.length;
-        const male = studentsData.filter((s: Student) => s.gender === 'male').length;
-        const female = studentsData.filter((s: Student) => s.gender === 'female').length;
+        const total = studentsList.length;
+        const male = studentsList.filter((s: Student) => s.gender === 'male').length;
+        const female = studentsList.filter((s: Student) => s.gender === 'female').length;
         
         setStats({ total, male, female });
       }
+
+      // Fetch teachers
+      const teachersRes = await fetch('https://web-xplc.onrender.com/api/teachers', { 
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+        }
+      });
+      if (teachersRes.ok) {
+        const teachersData = await teachersRes.json();
+        const teachersList = teachersData?.data || [];
+        setTeachers(teachersList.slice(0, 6)); // Show only first 6 teachers
+      }
     } catch (error) {
-      console.error('Failed to fetch students:', error);
+      console.error('Failed to fetch data:', error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchStudents();
+    fetchData();
   }, []);
 
   // Auto-refresh every 30 seconds
   useAutoRefresh({
     enabled: true,
     interval: 30000,
-    onRefresh: fetchStudents,
+    onRefresh: fetchData,
   });
 
   if (loading) {
@@ -69,10 +98,10 @@ export default function StudentsPreview() {
         <div className="container-custom">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-secondary-900 mb-4">
-              Meet Our Students
+              Meet Our Students/Teachers
             </h2>
             <p className="text-lg text-secondary-600 max-w-2xl mx-auto">
-              Loading students...
+              Loading data...
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -103,58 +132,95 @@ export default function StudentsPreview() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl font-bold text-secondary-900 mb-4">
-            Meet Our Students
+            Meet Our Students/Teachers
           </h2>
-          <p className="text-lg text-secondary-600 max-w-2xl mx-auto">
-            Discover the talented and diverse students who make up Science 1B at St. John's Grammar SHS.
+          <p className="text-lg text-secondary-600 max-w-2xl mx-auto mb-8">
+            {activeTab === 'students' 
+              ? 'Discover the talented and diverse students who make up Science 1B at St. John\'s Grammar SHS.'
+              : 'Meet the dedicated educators who guide and inspire our students at Science 1B.'
+            }
           </p>
-        </motion.div>
-
-        {/* Class Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
-        >
-          <div className="bg-white rounded-xl p-6 text-center shadow-lg">
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Users className="w-6 h-6 text-blue-600" />
+          
+          {/* Toggle Buttons */}
+          <div className="flex justify-center">
+            <div className="bg-white rounded-lg p-1 shadow-lg border border-gray-200">
+              <button
+                onClick={() => setActiveTab('students')}
+                className={`px-6 py-3 rounded-md font-medium transition-all duration-200 flex items-center space-x-2 ${
+                  activeTab === 'students'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <Users className="w-5 h-5" />
+                <span>Students</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('teachers')}
+                className={`px-6 py-3 rounded-md font-medium transition-all duration-200 flex items-center space-x-2 ${
+                  activeTab === 'teachers'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                        <GraduationCap className="w-5 h-5" />
+                <span>Teachers</span>
+              </button>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-1">{stats.total}</h3>
-            <p className="text-gray-600">Total Students</p>
-          </div>
-          <div className="bg-white rounded-xl p-6 text-center shadow-lg">
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-              <User className="w-6 h-6 text-green-600" />
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-1">{stats.male}</h3>
-            <p className="text-gray-600">Male Students</p>
-          </div>
-          <div className="bg-white rounded-xl p-6 text-center shadow-lg">
-            <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-3">
-              <User className="w-6 h-6 text-pink-600" />
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-1">{stats.female}</h3>
-            <p className="text-gray-600">Female Students</p>
           </div>
         </motion.div>
 
-        {/* Student Cards */}
+        {/* Class Stats - Only show for students */}
+        {activeTab === 'students' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
+          >
+            <div className="bg-white rounded-xl p-6 text-center shadow-lg">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Users className="w-6 h-6 text-blue-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-1">{stats.total}</h3>
+              <p className="text-gray-600">Total Students</p>
+            </div>
+            <div className="bg-white rounded-xl p-6 text-center shadow-lg">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <User className="w-6 h-6 text-green-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-1">{stats.male}</h3>
+              <p className="text-gray-600">Male Students</p>
+            </div>
+            <div className="bg-white rounded-xl p-6 text-center shadow-lg">
+              <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <User className="w-6 h-6 text-pink-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-1">{stats.female}</h3>
+              <p className="text-gray-600">Female Students</p>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Student/Teacher Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {students.length === 0 ? (
+          {(activeTab === 'students' ? students.length === 0 : teachers.length === 0) ? (
             <div className="col-span-full text-center py-12">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-8 h-8 text-gray-400" />
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-2">No Students Yet</h3>
-              <p className="text-gray-600">Student profiles will appear here once they're added to the system.</p>
+              <h3 className="text-xl font-medium text-gray-900 mb-2">
+                No {activeTab === 'students' ? 'Students' : 'Teachers'} Yet
+              </h3>
+              <p className="text-gray-600">
+                {activeTab === 'students' ? 'Student' : 'Teacher'} profiles will appear here once they're added to the system.
+              </p>
             </div>
           ) : (
-            students.map((student, index) => (
+            (activeTab === 'students' ? students : teachers).map((item: Person, index) => (
               <motion.div
-                key={student.id}
+                key={item.id}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -163,33 +229,42 @@ export default function StudentsPreview() {
               >
                 <div className="p-6 text-center">
                   {/* Profile Picture */}
-                  {student.profilePic ? (
+                  {item.profilePic ? (
                     <img
-                      src={student.profilePic}
-                      alt={student.name}
+                      src={item.profilePic}
+                      alt={item.name}
                       className="w-20 h-20 rounded-full mx-auto mb-4 object-cover border-4 border-gray-100 group-hover:border-blue-200 transition-colors"
                     />
                   ) : (
                     <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
-                      <User className="w-10 h-10 text-blue-600" />
+                      {activeTab === 'students' ? (
+                        <User className="w-10 h-10 text-blue-600" />
+                      ) : (
+                        <GraduationCap className="w-10 h-10 text-blue-600" />
+                      )}
                     </div>
                   )}
                   
                   {/* Name and Nickname */}
-                  <h3 className="text-lg font-bold text-gray-900 mb-1">{student.name}</h3>
-                  {student.nickname && (
-                    <p className="text-sm text-gray-500 mb-2">"{student.nickname}"</p>
+                  <h3 className="text-lg font-bold text-gray-900 mb-1">{item.name}</h3>
+                  {item.nickname && (
+                    <p className="text-sm text-gray-500 mb-2">"{item.nickname}"</p>
                   )}
                   
                   {/* Role */}
-                  <p className="text-blue-600 font-medium mb-3">{student.role}</p>
+                  <p className="text-blue-600 font-medium mb-3">{item.role}</p>
+                  
+                  {/* Subject (for teachers) */}
+                  {activeTab === 'teachers' && 'subject' in item && item.subject && (
+                    <p className="text-sm text-gray-600 mb-3 font-medium">{item.subject}</p>
+                  )}
                   
                   {/* Bio Preview */}
-                  {student.bio && (
+                  {item.bio && (
                     <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
-                      {student.bio.length > 80 
-                        ? `${student.bio.substring(0, 80)}...` 
-                        : student.bio
+                      {item.bio.length > 80 
+                        ? `${item.bio.substring(0, 80)}...` 
+                        : item.bio
                       }
                     </p>
                   )}
@@ -207,7 +282,7 @@ export default function StudentsPreview() {
           className="text-center mt-12"
         >
           <Link href="/students" className="btn-primary group">
-            View All Students
+            View All Students/Teachers
             <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
           </Link>
         </motion.div>
