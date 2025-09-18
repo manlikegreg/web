@@ -1,6 +1,4 @@
 import AdminJS from 'adminjs';
-import { Database, Resource } from '@adminjs/prisma';
-AdminJS.registerAdapter({ Database, Resource });
 export function buildAdmin(prisma) {
     const admin = new AdminJS({
         rootPath: '/admin',

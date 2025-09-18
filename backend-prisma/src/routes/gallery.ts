@@ -27,11 +27,12 @@ router.put('/:id', validateGallery, handleValidationErrors, updateGalleryItem);
 router.delete('/:id', deleteGalleryItem);
 
 // PUT /api/gallery/reorder - Reorder gallery items
-router.put('/reorder', express.json(), async (req, res) => {
+router.put('/reorder', express.json(), async (req, res): Promise<void> => {
   try {
     const { items } = req.body;
     if (!Array.isArray(items)) {
-      return res.status(400).json({ success: false, error: 'Items must be an array' });
+      res.status(400).json({ success: false, error: 'Items must be an array' });
+      return;
     }
 
     // Update the order of items
