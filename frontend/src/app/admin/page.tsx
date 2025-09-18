@@ -47,49 +47,11 @@ function HealthBanner() {
 
 export default function AdminPage() {
   const [active, setActive] = useState<TabKey>('students');
-  const [isAuthed, setIsAuthed] = useState<boolean>(false);
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    if (localStorage.getItem('admin_ok') === '1') setIsAuthed(true);
-  }, []);
-
-  function tryLogin(e: React.FormEvent) {
-    e.preventDefault();
-    const configured = (process.env.NEXT_PUBLIC_ADMIN_PASSWORD || '').trim();
-    if (!configured) {
-      setError('Admin password not configured. Set NEXT_PUBLIC_ADMIN_PASSWORD in env.');
-      return;
-    }
-    if (password === configured) {
-      localStorage.setItem('admin_ok', '1');
-      setIsAuthed(true);
-      setError('');
-    } else {
-      setError('Invalid password');
-    }
-  }
 
   return (
     <section className="section-padding bg-white">
       <div className="container-custom">
         <HealthBanner />
-        {!isAuthed ? (
-          <div className="max-w-md mx-auto">
-            <div className="card p-6">
-              <h2 className="text-xl font-semibold mb-4">Admin Login</h2>
-              <form onSubmit={tryLogin} className="space-y-3">
-                <label className="block">
-                  <span className="text-sm text-secondary-700">Password</span>
-                  <input type="password" className="input mt-1" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                </label>
-                {error ? <p className="text-sm text-red-600">{error}</p> : null}
-                <button type="submit" className="btn-primary w-full">Sign in</button>
-              </form>
-            </div>
-          </div>
-        ) : (
         <div className="flex flex-col lg:flex-row gap-8">
           <aside className="lg:w-64 w-full">
             <nav className="card p-4 space-y-2">
@@ -129,7 +91,6 @@ export default function AdminPage() {
             </AnimatePresence>
           </main>
         </div>
-        )}
       </div>
     </section>
   );
