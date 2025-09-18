@@ -15,6 +15,10 @@ import {
   createGalleryItem,
   updateGalleryItem,
   deleteGalleryItem,
+  getLeadershipMembers,
+  createLeadershipMember,
+  updateLeadershipMember,
+  deleteLeadershipMember,
   checkApiHealth,
   getApiUrl,
 } from '@/lib/api';
@@ -1294,116 +1298,246 @@ function GalleryAdmin({ toast }: { toast: any }) {
 function LeadershipAdmin({ toast }: { toast: any }) {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({
-    'leadership.title': '',
-    'leadership.description': '',
-    'leadership.image': '',
-    'leadership.team': '',
-  });
+  const [items, setItems] = useState<any[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState({ name: '', position: '', profilePic: '', bio: '', order: 0 });
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  async function loadData() {
+  async function refresh() {
     setLoading(true);
     try {
-      const res = await fetch('https://web-xplc.onrender.com/api/settings/leadership', { cache: 'no-store' });
-      if (res.ok) {
-        const json = await res.json();
-        setForm(json?.data || {});
+      const res = await getLeadershipMembers();
+      if (res.success && res.data) {
+        setItems(res.data);
       }
     } finally {
       setLoading(false);
     }
   }
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => {
+    refresh();
+  }, []);
+
+  function startEdit(member: any) {
+    setEditingId(member.id);
+    setForm({ 
+      name: member.name || '', 
+      position: member.position || '', 
+      profilePic: member.profilePic || '', 
+      bio: member.bio || '',
+      order: member.order || 0
+    });
+    setIsModalOpen(true);
+  }
+
+  function startAdd() {
+    setEditingId(null);
+    setForm({ name: '', position: '', profilePic: '', bio: '', order: 0 });
+    setIsModalOpen(true);
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch('https://web-xplc.onrender.com/api/settings/leadership', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      if (res.ok) {
-        toast.success('Leadership team content updated successfully!');
-        await loadData();
+      const payload = { 
+        name: form.name, 
+        position: form.position, 
+        profilePic: form.profilePic || undefined, 
+        bio: form.bio || undefined,
+        order: form.order
+      };
+      const r = editingId ? await updateLeadershipMember(editingId, payload) : await createLeadershipMember(payload);
+      if (r.success) {
+        toast.success(editingId ? 'Leadership member updated successfully!' : 'Leadership member created successfully!');
+        await refresh();
+        setIsModalOpen(false);
+        setEditingId(null);
+        setForm({ name: '', position: '', profilePic: '', bio: '', order: 0 });
       } else {
-        toast.error('Failed to update leadership team content');
+        toast.error(r.error || 'Failed to save leadership member');
       }
     } finally {
       setSaving(false);
     }
   }
 
+  async function onDelete(id: string) {
+    if (!confirm('Delete this leadership member?')) return;
+    const r = await deleteLeadershipMember(id);
+    if (r.success) {
+      toast.success('Leadership member deleted successfully!');
+      await refresh();
+    } else {
+      toast.error('Failed to delete leadership member');
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-lg shadow-sm border p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Leadership Team</h2>
-        <p className="text-gray-600 mb-6">Manage the leadership team section content</p>
-        
-        <form onSubmit={onSubmit} className="space-y-6">
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Section Title</label>
-            <input
-              type="text"
-              value={form['leadership.title']}
-              onChange={(e) => setForm({ ...form, 'leadership.title': e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Our Leadership Team"
-            />
+            <h2 className="text-2xl font-bold text-gray-900">Leadership Team</h2>
+            <p className="text-gray-600">Manage the class leadership team members</p>
+          </div>
+          <button
+            onClick={startAdd}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+          >
+            Add Member
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p className="mt-2 text-gray-600">Loading leadership team...</p>
+          </div>
+        ) : items.length === 0 ? (
+          <div className="text-center py-8">
+            <UserGroupIcon className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No leadership members</h3>
+            <p className="mt-1 text-sm text-gray-500">Get started by adding a new leadership member.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {items.map((member) => (
+              <motion.div
+                key={member.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-gray-50 rounded-lg p-4 border hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-center space-x-3 mb-3">
+                  {member.profilePic ? (
+                    <img
+                      src={member.profilePic}
+                      alt={member.name}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center">
+                      <UserGroupIcon className="h-6 w-6 text-gray-600" />
+                    </div>
+                  )}
+                  <div>
+                    <h3 className="font-medium text-gray-900">{member.name}</h3>
+                    <p className="text-sm text-gray-600">{member.position}</p>
+                  </div>
+                </div>
+                {member.bio && (
+                  <p className="text-sm text-gray-700 mb-3 line-clamp-2">{member.bio}</p>
+                )}
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => startEdit(member)}
+                    className="flex-1 px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => onDelete(member.id)}
+                    className="flex-1 px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={editingId ? 'Edit Leadership Member' : 'Add Leadership Member'}
+        size="md"
+      >
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+              <input
+                type="text"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Position</label>
+              <input
+                type="text"
+                value={form.position}
+                onChange={(e) => setForm({ ...form, position: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                required
+              />
+            </div>
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-            <RichTextEditor
-              value={form['leadership.description']}
-              onChange={(value) => setForm({ ...form, 'leadership.description': value })}
-              placeholder="Describe the leadership team and their roles..."
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Team Image URL</label>
-            <div className="flex gap-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Profile Image</label>
+            <div className="flex gap-2">
               <input
                 type="url"
-                value={form['leadership.image']}
-                onChange={(e) => setForm({ ...form, 'leadership.image': e.target.value })}
+                value={form.profilePic}
+                onChange={(e) => setForm({ ...form, profilePic: e.target.value })}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="https://example.com/team-image.jpg"
+                placeholder="https://example.com/image.jpg"
               />
-              <UploadButton onComplete={(url) => setForm({ ...form, 'leadership.image': url })} />
+              <UploadButton onComplete={(url) => setForm({ ...form, profilePic: url })} />
             </div>
-            {form['leadership.image'] && (
+            {form.profilePic && (
               <div className="mt-2">
-                <img src={form['leadership.image']} alt="Team preview" className="w-32 h-20 object-cover rounded border" />
+                <img src={form.profilePic} alt="Preview" className="w-16 h-16 rounded object-cover border" />
               </div>
             )}
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Team Members (JSON format)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
             <textarea
-              value={form['leadership.team']}
-              onChange={(e) => setForm({ ...form, 'leadership.team': e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-32"
-              placeholder='[{"name": "John Doe", "position": "Class President", "image": "https://example.com/john.jpg"}, {"name": "Jane Smith", "position": "Vice President", "image": "https://example.com/jane.jpg"}]'
+              value={form.bio}
+              onChange={(e) => setForm({ ...form, bio: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-24"
+              placeholder="Tell us about this leadership member..."
             />
-            <p className="text-sm text-gray-500 mt-1">Enter team members as JSON array with name, position, and image fields</p>
           </div>
           
-          <div className="flex justify-end">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Order (for display sequence)</label>
+            <input
+              type="number"
+              value={form.order}
+              onChange={(e) => setForm({ ...form, order: parseInt(e.target.value) || 0 })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              min="0"
+            />
+          </div>
+          
+          <div className="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+            >
+              Cancel
+            </button>
             <button
               type="submit"
               disabled={saving}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {saving ? 'Saving...' : 'Save Changes'}
+              {saving ? 'Saving...' : editingId ? 'Update Member' : 'Add Member'}
             </button>
           </div>
         </form>
-      </div>
+      </Modal>
     </div>
   );
 }

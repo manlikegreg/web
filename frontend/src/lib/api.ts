@@ -45,6 +45,17 @@ export interface Gallery {
   updatedAt: string;
 }
 
+export interface Leadership {
+  id: string;
+  name: string;
+  position: string;
+  profilePic?: string;
+  bio?: string;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // API client class
 class ApiClient {
   private baseURL: string;
@@ -207,6 +218,42 @@ class ApiClient {
     });
   }
 
+  // Leadership API
+  async getLeadershipMembers(): Promise<ApiResponse<Leadership[]>> {
+    return this.request<Leadership[]>('/leadership');
+  }
+
+  async getLeadershipMember(id: string): Promise<ApiResponse<Leadership>> {
+    return this.request<Leadership>(`/leadership/${id}`);
+  }
+
+  async createLeadershipMember(member: Omit<Leadership, 'id' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<Leadership>> {
+    return this.request<Leadership>('/leadership', {
+      method: 'POST',
+      body: JSON.stringify(member),
+    });
+  }
+
+  async updateLeadershipMember(id: string, member: Partial<Leadership>): Promise<ApiResponse<Leadership>> {
+    return this.request<Leadership>(`/leadership/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(member),
+    });
+  }
+
+  async deleteLeadershipMember(id: string): Promise<ApiResponse<null>> {
+    return this.request<null>(`/leadership/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async reorderLeadershipMembers(members: Leadership[]): Promise<ApiResponse<null>> {
+    return this.request<null>('/leadership/reorder', {
+      method: 'PUT',
+      body: JSON.stringify({ members }),
+    });
+  }
+
   // Health check
   async healthCheck(): Promise<ApiResponse<{ message: string; timestamp: string }>> {
     return this.request<{ message: string; timestamp: string }>('/health');
@@ -232,6 +279,12 @@ export const getGalleryItem = apiClient.getGalleryItem.bind(apiClient);
 export const createGalleryItem = apiClient.createGalleryItem.bind(apiClient);
 export const updateGalleryItem = apiClient.updateGalleryItem.bind(apiClient);
 export const deleteGalleryItem = apiClient.deleteGalleryItem.bind(apiClient);
+export const getLeadershipMembers = apiClient.getLeadershipMembers.bind(apiClient);
+export const getLeadershipMember = apiClient.getLeadershipMember.bind(apiClient);
+export const createLeadershipMember = apiClient.createLeadershipMember.bind(apiClient);
+export const updateLeadershipMember = apiClient.updateLeadershipMember.bind(apiClient);
+export const deleteLeadershipMember = apiClient.deleteLeadershipMember.bind(apiClient);
+export const reorderLeadershipMembers = apiClient.reorderLeadershipMembers.bind(apiClient);
 export const getSettings = apiClient.getSettings.bind(apiClient);
 export const updateSettings = apiClient.updateSettings.bind(apiClient);
 export const uploadFile = apiClient.uploadFile.bind(apiClient);

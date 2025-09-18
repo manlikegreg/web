@@ -17,6 +17,7 @@ import notFound from './middleware/notFound.js';
 import studentRoutes from './routes/students.js';
 import articleRoutes from './routes/articles.js';
 import galleryRoutes from './routes/gallery.js';
+import leadershipRoutes from './routes/leadership.js';
 // Uploads and settings routes
 import uploadRoutes from './routes/upload.js';
 import settingsRoutes from './routes/settings.js';
@@ -106,6 +107,7 @@ app.get('/', (req: Request, res: Response) => {
 app.use('/api/students', studentRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/gallery', galleryRoutes);
+app.use('/api/leadership', leadershipRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/settings', settingsRoutes);
 

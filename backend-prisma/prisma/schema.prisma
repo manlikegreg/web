@@ -51,6 +51,19 @@ model Gallery {
   @@map("gallery")
 }
 
+model Leadership {
+  id         String   @id @default(cuid())
+  name       String
+  position   String
+  profilePic String?  @map("profile_pic")
+  bio        String?
+  order      Int      @default(0)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("leadership")
+}
+
 model Setting {
   key   String @id
   value String
