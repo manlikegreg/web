@@ -67,8 +67,12 @@ export default function Leadership() {
   useEffect(() => {
     const fetchLeadership = async () => {
       try {
+        console.log('Fetching leadership members...');
         const response = await getLeadershipMembers();
+        console.log('Leadership API response:', response);
+        
         if (response.success && response.data && response.data.length > 0) {
+          console.log('Found leadership members:', response.data);
           // Transform API data to match component structure
           const transformedData = response.data.map(member => ({
             name: member.name,
@@ -77,6 +81,8 @@ export default function Leadership() {
             profilePic: member.profilePic || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face'
           }));
           setLeadership(transformedData);
+        } else {
+          console.log('No leadership members found, using default data');
         }
       } catch (error) {
         console.error('Error fetching leadership members:', error);

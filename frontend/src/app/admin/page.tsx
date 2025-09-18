@@ -569,7 +569,7 @@ function StudentsAdmin({ toast }: { toast: any }) {
   const [saving, setSaving] = useState(false);
   const [items, setItems] = useState<any[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: '', role: '', gender: '', profilePic: '', bio: '' });
+  const [form, setForm] = useState({ name: '', role: '', gender: '', phone: '', whatsapp: '', profilePic: '', bio: '' });
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   async function refresh() {
@@ -591,13 +591,13 @@ function StudentsAdmin({ toast }: { toast: any }) {
 
   function startEdit(s: any) {
     setEditingId(s.id);
-    setForm({ name: s.name || '', role: s.role || '', gender: s.gender || '', profilePic: s.profilePic || '', bio: s.bio || '' });
+    setForm({ name: s.name || '', role: s.role || '', gender: s.gender || '', phone: s.phone || '', whatsapp: s.whatsapp || '', profilePic: s.profilePic || '', bio: s.bio || '' });
     setIsModalOpen(true);
   }
 
   function startAdd() {
     setEditingId(null);
-    setForm({ name: '', role: '', gender: '', profilePic: '', bio: '' });
+    setForm({ name: '', role: '', gender: '', phone: '', whatsapp: '', profilePic: '', bio: '' });
     setIsModalOpen(true);
   }
 
@@ -605,14 +605,14 @@ function StudentsAdmin({ toast }: { toast: any }) {
     e.preventDefault();
     setSaving(true);
     try {
-      const payload = { name: form.name, role: form.role, gender: form.gender || undefined, profilePic: form.profilePic || undefined, bio: form.bio || undefined } as any;
+      const payload = { name: form.name, role: form.role, gender: form.gender || undefined, phone: form.phone || undefined, whatsapp: form.whatsapp || undefined, profilePic: form.profilePic || undefined, bio: form.bio || undefined } as any;
       const r = editingId ? await updateStudent(editingId, payload) : await createStudent(payload);
       if (r.success) {
         toast.success(editingId ? 'Student updated successfully!' : 'Student created successfully!');
         await refresh();
         setIsModalOpen(false);
         setEditingId(null);
-        setForm({ name: '', role: '', gender: '', profilePic: '', bio: '' });
+        setForm({ name: '', role: '', gender: '', phone: '', whatsapp: '', profilePic: '', bio: '' });
       } else {
         toast.error(r.error || 'Failed to save student');
       }
@@ -763,6 +763,29 @@ function StudentsAdmin({ toast }: { toast: any }) {
                 />
                 <span className="text-sm text-gray-700">Female</span>
               </label>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+              <input
+                type="tel"
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="+233 XX XXX XXXX"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">WhatsApp</label>
+              <input
+                type="tel"
+                value={form.whatsapp}
+                onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="+233 XX XXX XXXX"
+              />
             </div>
           </div>
           

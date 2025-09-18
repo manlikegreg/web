@@ -15,6 +15,8 @@ model Student {
   name       String
   role       String
   gender     String?  // 'male' or 'female'
+  phone      String?  // phone number
+  whatsapp   String?  // whatsapp number/link
   profilePic String?  @map("profile_pic")
   bio        String?
   createdAt  DateTime @default(now()) @map("created_at")

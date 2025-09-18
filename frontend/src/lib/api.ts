@@ -22,6 +22,8 @@ export interface Student {
   name: string;
   role: string;
   gender?: 'male' | 'female';
+  phone?: string;
+  whatsapp?: string;
   profilePic?: string;
   bio?: string;
   createdAt: string;
