@@ -7,8 +7,6 @@ import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import { getPrisma, disconnectPrisma } from './lib/prisma.js';
 import session from 'express-session';
-import AdminJSExpress from '@adminjs/express';
-import { buildAdmin } from './admin.js';
 import errorHandler from './middleware/errorHandler.js';
 import notFound from './middleware/notFound.js';
 import studentRoutes from './routes/students.js';
@@ -56,6 +54,9 @@ app.use('/api/students', studentRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/gallery', galleryRoutes);
 if (process.env.ADMINJS_ENABLED === 'true') {
+    const { default: AdminJS } = await import('adminjs');
+    const { default: AdminJSExpress } = await import('@adminjs/express');
+    const { buildAdmin } = await import('./admin.js');
     const admin = buildAdmin(prisma);
     const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@science1b.local';
     const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
