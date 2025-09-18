@@ -6,6 +6,7 @@ import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
+import { getPrisma, disconnectPrisma } from './lib/prisma.js';
 import session from 'express-session';
 import AdminJS from 'adminjs';
 import AdminJSExpress from '@adminjs/express';
@@ -25,8 +26,8 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Initialize Prisma Client
-export const prisma = new PrismaClient();
+// Initialize Prisma Client lazily
+export const prisma: PrismaClient = getPrisma();
 
 // Security middleware
 app.use(helmet());
@@ -127,12 +128,12 @@ app.use(errorHandler);
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
-  await prisma.$disconnect();
+  await disconnectPrisma();
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
-  await prisma.$disconnect();
+  await disconnectPrisma();
   process.exit(0);
 });
 
