@@ -136,9 +136,12 @@ function StudentsAdmin() {
 
   async function refresh() {
     setLoading(true);
-    const r = await getStudents();
-    setLoading(false);
-    if (r.success) setItems(r.data || []);
+    try {
+      const r = await getStudents();
+      if (r.success) setItems(r.data || []);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -226,10 +229,13 @@ function ArticlesAdmin() {
 
   async function refresh() {
     setLoading(true);
-    const [a, s] = await Promise.all([getArticles(1, 50), getStudents()]);
-    setLoading(false);
-    if (a.success) setItems(a.data || []);
-    if (s.success) setStudents(s.data || []);
+    try {
+      const [a, s] = await Promise.all([getArticles(1, 50), getStudents()]);
+      if (a.success) setItems(a.data || []);
+      if (s.success) setStudents(s.data || []);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => { refresh(); }, []);
@@ -315,9 +321,12 @@ function GalleryAdmin() {
 
   async function refresh() {
     setLoading(true);
-    const r = await getGalleryItems(1, 100);
-    setLoading(false);
-    if (r.success) setItems(r.data || []);
+    try {
+      const r = await getGalleryItems(1, 100);
+      if (r.success) setItems(r.data || []);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => { refresh(); }, []);

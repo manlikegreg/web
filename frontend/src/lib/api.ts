@@ -58,17 +58,23 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
-    
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
         ...options.headers,
       },
+      mode: 'cors',
+      signal: controller.signal,
       ...options,
     };
 
     try {
       const response = await fetch(url, config);
+      clearTimeout(timeoutId);
       const data = await response.json();
 
       if (!response.ok) {
@@ -77,6 +83,7 @@ class ApiClient {
 
       return data;
     } catch (error) {
+      clearTimeout(timeoutId);
       console.error('API request failed:', error);
       return {
         success: false,
