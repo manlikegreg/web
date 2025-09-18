@@ -7,6 +7,10 @@ import {
   createStudent,
   updateStudent,
   deleteStudent,
+  getTeachers,
+  createTeacher,
+  updateTeacher,
+  deleteTeacher,
   getArticles,
   createArticle,
   updateArticle,
@@ -569,13 +573,26 @@ function StudentsAdmin({ toast }: { toast: any }) {
   const [saving, setSaving] = useState(false);
   const [items, setItems] = useState<any[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: '', nickname: '', role: '', gender: '', phone: '', whatsapp: '', profilePic: '', bio: '' });
+  const [activeTab, setActiveTab] = useState<'students' | 'teachers'>('students');
+  const [form, setForm] = useState({ 
+    name: '', 
+    nickname: '', 
+    role: '', 
+    subject: '', 
+    gender: '', 
+    phone: '', 
+    whatsapp: '', 
+    email: '', 
+    profilePic: '', 
+    bio: '' 
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   async function refresh() {
     setLoading(true);
     try {
-      const res = await fetch('https://web-xplc.onrender.com/api/students', { cache: 'no-store' });
+      const endpoint = activeTab === 'students' ? '/api/students' : '/api/teachers';
+      const res = await fetch(`https://web-xplc.onrender.com${endpoint}`, { cache: 'no-store' });
       if (res.ok) {
         const json = await res.json();
         setItems(json?.data || []);
@@ -589,15 +606,41 @@ function StudentsAdmin({ toast }: { toast: any }) {
     refresh();
   }, []);
 
+  useEffect(() => {
+    refresh();
+  }, [activeTab]);
+
   function startEdit(s: any) {
     setEditingId(s.id);
-    setForm({ name: s.name || '', nickname: s.nickname || '', role: s.role || '', gender: s.gender || '', phone: s.phone || '', whatsapp: s.whatsapp || '', profilePic: s.profilePic || '', bio: s.bio || '' });
+    setForm({ 
+      name: s.name || '', 
+      nickname: s.nickname || '', 
+      role: s.role || '', 
+      subject: s.subject || '', 
+      gender: s.gender || '', 
+      phone: s.phone || '', 
+      whatsapp: s.whatsapp || '', 
+      email: s.email || '', 
+      profilePic: s.profilePic || '', 
+      bio: s.bio || '' 
+    });
     setIsModalOpen(true);
   }
 
   function startAdd() {
     setEditingId(null);
-    setForm({ name: '', nickname: '', role: '', gender: '', phone: '', whatsapp: '', profilePic: '', bio: '' });
+    setForm({ 
+      name: '', 
+      nickname: '', 
+      role: '', 
+      subject: '', 
+      gender: '', 
+      phone: '', 
+      whatsapp: '', 
+      email: '', 
+      profilePic: '', 
+      bio: '' 
+    });
     setIsModalOpen(true);
   }
 
@@ -605,16 +648,47 @@ function StudentsAdmin({ toast }: { toast: any }) {
     e.preventDefault();
     setSaving(true);
     try {
-      const payload = { name: form.name, nickname: form.nickname || undefined, role: form.role, gender: form.gender || undefined, phone: form.phone || undefined, whatsapp: form.whatsapp || undefined, profilePic: form.profilePic || undefined, bio: form.bio || undefined } as any;
-      const r = editingId ? await updateStudent(editingId, payload) : await createStudent(payload);
+      const payload = { 
+        name: form.name, 
+        nickname: form.nickname || undefined, 
+        role: form.role, 
+        subject: form.subject || undefined,
+        gender: form.gender || undefined, 
+        phone: form.phone || undefined, 
+        whatsapp: form.whatsapp || undefined, 
+        email: form.email || undefined,
+        profilePic: form.profilePic || undefined, 
+        bio: form.bio || undefined 
+      } as any;
+      
+      let r;
+      if (activeTab === 'students') {
+        r = editingId ? await updateStudent(editingId, payload) : await createStudent(payload);
+      } else {
+        r = editingId ? await updateTeacher(editingId, payload) : await createTeacher(payload);
+      }
+      
       if (r.success) {
-        toast.success(editingId ? 'Student updated successfully!' : 'Student created successfully!');
+        const itemType = activeTab === 'students' ? 'Student' : 'Teacher';
+        toast.success(editingId ? `${itemType} updated successfully!` : `${itemType} created successfully!`);
         await refresh();
         setIsModalOpen(false);
         setEditingId(null);
-        setForm({ name: '', nickname: '', role: '', gender: '', phone: '', whatsapp: '', profilePic: '', bio: '' });
+        setForm({ 
+          name: '', 
+          nickname: '', 
+          role: '', 
+          subject: '', 
+          gender: '', 
+          phone: '', 
+          whatsapp: '', 
+          email: '', 
+          profilePic: '', 
+          bio: '' 
+        });
       } else {
-        toast.error(r.error || 'Failed to save student');
+        const itemType = activeTab === 'students' ? 'student' : 'teacher';
+        toast.error(r.error || `Failed to save ${itemType}`);
       }
     } finally {
       setSaving(false);
@@ -622,13 +696,15 @@ function StudentsAdmin({ toast }: { toast: any }) {
   }
 
   async function onDelete(id: string) {
-    if (!confirm('Delete this student?')) return;
-    const r = await deleteStudent(id);
+    const itemType = activeTab === 'students' ? 'student' : 'teacher';
+    if (!confirm(`Delete this ${itemType}?`)) return;
+    
+    const r = activeTab === 'students' ? await deleteStudent(id) : await deleteTeacher(id);
     if (r.success) {
-      toast.success('Student deleted successfully!');
+      toast.success(`${itemType.charAt(0).toUpperCase() + itemType.slice(1)} deleted successfully!`);
       await refresh();
     } else {
-      toast.error('Failed to delete student');
+      toast.error(r.error || `Failed to delete ${itemType}`);
     }
   }
 
@@ -637,27 +713,57 @@ function StudentsAdmin({ toast }: { toast: any }) {
       <div className="bg-white rounded-lg shadow-sm border p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Students</h2>
-            <p className="text-gray-600">Manage students shown across the site</p>
+            <h2 className="text-2xl font-bold text-gray-900">
+              {activeTab === 'students' ? 'Students' : 'Teachers'}
+            </h2>
+            <p className="text-gray-600">
+              Manage {activeTab} shown across the site
+            </p>
           </div>
-          <button
-            onClick={startAdd}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-          >
-            Add Student
-          </button>
+          <div className="flex items-center space-x-4">
+            {/* Toggle Buttons */}
+            <div className="flex bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => setActiveTab('students')}
+                className={`px-4 py-2 rounded-md font-medium transition-all duration-200 ${
+                  activeTab === 'students'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Students
+              </button>
+              <button
+                onClick={() => setActiveTab('teachers')}
+                className={`px-4 py-2 rounded-md font-medium transition-all duration-200 ${
+                  activeTab === 'teachers'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Teachers
+              </button>
+            </div>
+            
+            <button
+              onClick={startAdd}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+            >
+              Add {activeTab === 'students' ? 'Student' : 'Teacher'}
+            </button>
+          </div>
         </div>
 
         {loading ? (
           <div className="text-center py-8">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <p className="mt-2 text-gray-600">Loading students...</p>
+            <p className="mt-2 text-gray-600">Loading {activeTab}...</p>
           </div>
         ) : items.length === 0 ? (
           <div className="text-center py-8">
             <UserGroupIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No students</h3>
-            <p className="mt-1 text-sm text-gray-500">Get started by adding a new student.</p>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No {activeTab}</h3>
+            <p className="mt-1 text-sm text-gray-500">Get started by adding a new {activeTab === 'students' ? 'student' : 'teacher'}.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -711,7 +817,7 @@ function StudentsAdmin({ toast }: { toast: any }) {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingId ? 'Edit Student' : 'Add Student'}
+        title={editingId ? `Edit ${activeTab === 'students' ? 'Student' : 'Teacher'}` : `Add ${activeTab === 'students' ? 'Student' : 'Teacher'}`}
         size="md"
       >
         <form onSubmit={onSubmit} className="space-y-4">
@@ -748,6 +854,19 @@ function StudentsAdmin({ toast }: { toast: any }) {
               required
             />
           </div>
+
+          {activeTab === 'teachers' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+              <input
+                type="text"
+                value={form.subject}
+                onChange={(e) => setForm({ ...form, subject: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="e.g., Mathematics, Physics, Chemistry"
+              />
+            </div>
+          )}
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
@@ -799,6 +918,19 @@ function StudentsAdmin({ toast }: { toast: any }) {
               />
             </div>
           </div>
+
+          {activeTab === 'teachers' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+              <input
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="teacher@stjohns.edu.gh"
+              />
+            </div>
+          )}
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Profile Image</label>
