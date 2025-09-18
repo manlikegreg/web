@@ -1,6 +1,6 @@
 // API client for connecting to the backend
 // Hardcode deployed backend URL (ignore env overrides)
-const API_BASE_URL = 'https://science-1b-backend-prisma.onrender.com';
+const API_BASE_URL = 'https://web-xplc.onrender.com';
 const API_URL = `${API_BASE_URL}/api`;
 
 // Types for API responses
