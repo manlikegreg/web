@@ -48,7 +48,7 @@ type TabKey = 'home' | 'about' | 'students' | 'articles' | 'gallery' | 'contact'
 const tabs: { key: TabKey; label: string; icon: any }[] = [
   { key: 'home', label: 'Home', icon: HomeIcon },
   { key: 'about', label: 'About', icon: InformationCircleIcon },
-  { key: 'students', label: 'Students', icon: UserGroupIcon },
+  { key: 'students', label: 'Students/Teachers', icon: UserGroupIcon },
   { key: 'articles', label: 'Articles', icon: DocumentTextIcon },
   { key: 'gallery', label: 'Gallery', icon: PhotoIcon },
   { key: 'leadership', label: 'Leadership Team', icon: UserGroupIcon },
