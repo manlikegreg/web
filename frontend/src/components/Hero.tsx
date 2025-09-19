@@ -78,31 +78,31 @@ export default function Hero() {
       <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-20 sm:py-24 lg:py-32">
         {/* Animated headline */}
         <motion.h1
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-white mb-4 sm:mb-6 leading-tight"
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-white mb-4 sm:mb-6 leading-tight mobile-optimized"
         >
           <motion.span
-            initial={{ opacity: 0, x: -50 }}
+            initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
             className="block text-responsive-lg sm:text-responsive-xl"
           >
             Welcome to
           </motion.span>
           <motion.span
-            initial={{ opacity: 0, x: 50 }}
+            initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
             className="block bg-gradient-to-r from-accent-300 to-accent-100 bg-clip-text text-transparent"
           >
             Science 1B
           </motion.span>
           <motion.span
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
+            transition={{ duration: 0.4, delay: 0.3 }}
             className="block text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl font-normal text-white/90 mt-2 sm:mt-4"
           >
             St. John's Grammar SHS
@@ -111,30 +111,30 @@ export default function Hero() {
 
         {/* Sub-text */}
         <motion.p
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/80 mb-8 sm:mb-12 max-w-4xl mx-auto font-light px-4"
+          transition={{ duration: 0.4, delay: 0.4 }}
+          className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/80 mb-8 sm:mb-12 max-w-4xl mx-auto font-light px-4 mobile-optimized"
         >
           Excellence in Science, Innovation, and Teamwork
         </motion.p>
 
         {/* CTA Button */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1 }}
+          transition={{ duration: 0.4, delay: 0.5 }}
         >
           <motion.button
             onClick={scrollToNext}
-            className="group inline-flex items-center justify-center px-6 py-4 sm:px-8 sm:py-4 text-base sm:text-lg font-semibold text-primary-700 bg-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 hover:bg-accent-50 touch-target"
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
+            className="group inline-flex items-center justify-center px-6 py-4 sm:px-8 sm:py-4 text-base sm:text-lg font-semibold text-primary-700 bg-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-200 hover:scale-105 hover:bg-accent-50 touch-target mobile-optimized"
+            whileHover={{ scale: 1.02, y: -1 }}
+            whileTap={{ scale: 0.98 }}
           >
             <span className="mr-2">Explore Magazine</span>
             <motion.div
-              animate={{ y: [0, 4, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
+              animate={{ y: [0, 3, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
             >
               <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6" />
             </motion.div>

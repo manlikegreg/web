@@ -124,26 +124,26 @@ export default function PhotoGallery() {
         </ScrollAnimation>
 
         {/* Photo Grid */}
-        <StaggerAnimation className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8" staggerDelay={0.1}>
+        <StaggerAnimation className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8" staggerDelay={0.05}>
           {filteredPhotos.map((photo, index) => (
             <motion.div
               key={photo.id}
-              className="group relative overflow-hidden rounded-2xl bg-white shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer"
+              className="group relative overflow-hidden rounded-2xl bg-white shadow-lg hover:shadow-2xl transition-all duration-200 cursor-pointer mobile-optimized"
               onClick={() => openLightbox(index)}
               whileHover={{ 
-                y: -8, 
-                scale: 1.02,
-                transition: { duration: 0.3, ease: 'easeOut' }
+                y: -4, 
+                scale: 1.01,
+                transition: { duration: 0.2, ease: 'easeOut' }
               }}
-              whileTap={{ scale: 0.98 }}
+              whileTap={{ scale: 0.99 }}
             >
               <div className="aspect-w-16 aspect-h-12 overflow-hidden">
                 <motion.img
                   src={photo.imageUrl}
                   alt={photo.title}
-                  className="w-full h-48 sm:h-56 lg:h-64 object-cover"
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                  className="w-full h-48 sm:h-56 lg:h-64 object-cover mobile-optimized"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
                 />
               </div>
               

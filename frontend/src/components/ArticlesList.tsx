@@ -85,25 +85,25 @@ export default function ArticlesList() {
   return (
     <section className="section-padding bg-white">
       <div className="container-custom">
-        <StaggerAnimation className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8" staggerDelay={0.1}>
+        <StaggerAnimation className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8" staggerDelay={0.05}>
           {articles.map((article, index) => (
             <motion.article
               key={article.id}
-              className="card group hover:shadow-2xl transition-all duration-500 overflow-hidden"
+              className="card group hover:shadow-2xl transition-all duration-200 overflow-hidden mobile-optimized"
               whileHover={{ 
-                y: -6, 
-                scale: 1.02,
-                transition: { duration: 0.3, ease: 'easeOut' }
+                y: -3, 
+                scale: 1.01,
+                transition: { duration: 0.2, ease: 'easeOut' }
               }}
-              whileTap={{ scale: 0.98 }}
+              whileTap={{ scale: 0.99 }}
             >
               <div className="aspect-w-16 aspect-h-9 overflow-hidden relative">
                 <motion.img
                   src={article.imageUrl}
                   alt={article.title}
-                  className="w-full h-40 sm:h-48 lg:h-52 object-cover"
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                  className="w-full h-40 sm:h-48 lg:h-52 object-cover mobile-optimized"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
                 />
                 {/* Gradient Overlay */}
                 <motion.div

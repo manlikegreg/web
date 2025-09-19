@@ -32,9 +32,12 @@ export default function ScrollAnimation({
     amount: threshold
   });
 
-  // Respect user's motion preferences
-  if (shouldReduceMotion) {
-    return <div className={className}>{children}</div>;
+  // Check if we're on mobile
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
+  // Respect user's motion preferences or mobile performance
+  if (shouldReduceMotion || isMobile) {
+    return <div className={`${className} mobile-optimized`}>{children}</div>;
   }
 
   const directionVariants = {
@@ -58,16 +61,16 @@ export default function ScrollAnimation({
   return (
     <motion.div
       ref={ref}
-      className={className}
+      className={`${className} mobile-optimized`}
       initial={directionVariants[direction]}
       animate={isInView ? animateVariants[direction] : directionVariants[direction]}
       transition={{
-        duration,
-        delay,
-        ease: [0.25, 0.46, 0.45, 0.94], // Custom easing for smoother animations
-        type: 'spring',
-        stiffness: 100,
-        damping: 20,
+        duration: isMobile ? 0.3 : duration,
+        delay: isMobile ? 0 : delay,
+        ease: isMobile ? 'easeOut' : [0.25, 0.46, 0.45, 0.94],
+        type: isMobile ? 'tween' : 'spring',
+        stiffness: isMobile ? undefined : 100,
+        damping: isMobile ? undefined : 20,
       }}
     >
       {children}
