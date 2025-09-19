@@ -28,7 +28,10 @@
     "tailwind-merge": "^2.2.0"
   },
   "devDependencies": {
+    "@emotion/is-prop-valid": "^1.4.0",
     "@playwright/test": "^1.40.1",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.0",
     "@types/jest": "^29.5.8",
     "@types/node": "^20.10.5",
     "@types/react": "^18.2.45",

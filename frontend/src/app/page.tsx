@@ -1,34 +1,54 @@
+import dynamic from 'next/dynamic';
 import Hero from '@/components/Hero';
-import AboutPreview from '@/components/AboutPreview';
-import FeaturedArticles from '@/components/FeaturedArticles';
-import GalleryPreview from '@/components/GalleryPreview';
-import StudentsPreview from '@/components/StudentsPreview';
-import LeadershipPreview from '@/components/LeadershipPreview';
-import Achievements from '@/components/Achievements';
-import ScrollAnimation from '@/components/animations/ScrollAnimation';
+import LightweightAnimation from '@/components/animations/LightweightAnimation';
+
+// Dynamic imports for better code splitting
+const AboutPreview = dynamic(() => import('@/components/AboutPreview'), {
+  loading: () => <div className="h-96 bg-gray-100 animate-pulse rounded-lg" />,
+});
+
+const FeaturedArticles = dynamic(() => import('@/components/FeaturedArticles'), {
+  loading: () => <div className="h-96 bg-gray-100 animate-pulse rounded-lg" />,
+});
+
+const GalleryPreview = dynamic(() => import('@/components/GalleryPreview'), {
+  loading: () => <div className="h-96 bg-gray-100 animate-pulse rounded-lg" />,
+});
+
+const StudentsPreview = dynamic(() => import('@/components/StudentsPreview'), {
+  loading: () => <div className="h-96 bg-gray-100 animate-pulse rounded-lg" />,
+});
+
+const LeadershipPreview = dynamic(() => import('@/components/LeadershipPreview'), {
+  loading: () => <div className="h-96 bg-gray-100 animate-pulse rounded-lg" />,
+});
+
+const Achievements = dynamic(() => import('@/components/Achievements'), {
+  loading: () => <div className="h-96 bg-gray-100 animate-pulse rounded-lg" />,
+});
 
 export default function Home() {
   return (
     <>
       <Hero />
-      <ScrollAnimation>
+      <LightweightAnimation animation="slideUp" delay={200}>
         <AboutPreview />
-      </ScrollAnimation>
-      <ScrollAnimation>
+      </LightweightAnimation>
+      <LightweightAnimation animation="slideUp" delay={400}>
         <LeadershipPreview />
-      </ScrollAnimation>
-      <ScrollAnimation>
+      </LightweightAnimation>
+      <LightweightAnimation animation="slideUp" delay={600}>
         <StudentsPreview />
-      </ScrollAnimation>
-      <ScrollAnimation>
+      </LightweightAnimation>
+      <LightweightAnimation animation="slideUp" delay={800}>
         <GalleryPreview />
-      </ScrollAnimation>
-      <ScrollAnimation>
+      </LightweightAnimation>
+      <LightweightAnimation animation="slideUp" delay={1000}>
         <Achievements />
-      </ScrollAnimation>
-      <ScrollAnimation>
+      </LightweightAnimation>
+      <LightweightAnimation animation="slideUp" delay={1200}>
         <FeaturedArticles />
-      </ScrollAnimation>
+      </LightweightAnimation>
     </>
   );
 }
