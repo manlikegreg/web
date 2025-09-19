@@ -574,6 +574,8 @@ function StudentsAdmin({ toast }: { toast: any }) {
   const [items, setItems] = useState<any[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'students' | 'teachers'>('students');
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [isBulkDeleteMode, setIsBulkDeleteMode] = useState(false);
   const [form, setForm] = useState({ 
     name: '', 
     nickname: '', 
@@ -708,31 +710,84 @@ function StudentsAdmin({ toast }: { toast: any }) {
     }
   }
 
+  // Bulk delete functions
+  function toggleItemSelection(id: string) {
+    const newSelected = new Set(selectedItems);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedItems(newSelected);
+  }
+
+  function selectAllItems() {
+    const allIds = new Set(items.map(item => item.id));
+    setSelectedItems(allIds);
+  }
+
+  function clearSelection() {
+    setSelectedItems(new Set());
+  }
+
+  async function bulkDelete() {
+    if (selectedItems.size === 0) return;
+    
+    const itemType = activeTab === 'students' ? 'student' : 'teacher';
+    if (!confirm(`Delete ${selectedItems.size} ${itemType}${selectedItems.size > 1 ? 's' : ''}?`)) return;
+    
+    setSaving(true);
+    try {
+      const deletePromises = Array.from(selectedItems).map(id => 
+        activeTab === 'students' ? deleteStudent(id) : deleteTeacher(id)
+      );
+      
+      const results = await Promise.all(deletePromises);
+      const successCount = results.filter(r => r.success).length;
+      const failCount = results.length - successCount;
+      
+      if (successCount > 0) {
+        toast.success(`${successCount} ${itemType}${successCount > 1 ? 's' : ''} deleted successfully!`);
+        await refresh();
+        clearSelection();
+        setIsBulkDeleteMode(false);
+      }
+      
+      if (failCount > 0) {
+        toast.error(`Failed to delete ${failCount} ${itemType}${failCount > 1 ? 's' : ''}`);
+      }
+    } catch (error) {
+      toast.error('Bulk delete failed');
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-lg shadow-sm border p-6">
         <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">
-              {activeTab === 'students' ? 'Students' : 'Teachers'}
-            </h2>
-            <p className="text-gray-600">
-              Manage {activeTab} shown across the site
-            </p>
-          </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {activeTab === 'students' ? 'Students/Teachers' : 'Teachers'}
+                </h2>
+                <p className="text-gray-600">
+                  Manage {activeTab === 'students' ? 'students and teachers' : 'teachers'} shown across the site
+                </p>
+              </div>
           <div className="flex items-center space-x-4">
             {/* Toggle Buttons */}
             <div className="flex bg-gray-100 rounded-lg p-1">
-              <button
-                onClick={() => setActiveTab('students')}
-                className={`px-4 py-2 rounded-md font-medium transition-all duration-200 ${
-                  activeTab === 'students'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Students
-              </button>
+                  <button
+                    onClick={() => setActiveTab('students')}
+                    className={`px-4 py-2 rounded-md font-medium transition-all duration-200 ${
+                      activeTab === 'students'
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    Students/Teachers
+                  </button>
               <button
                 onClick={() => setActiveTab('teachers')}
                 className={`px-4 py-2 rounded-md font-medium transition-all duration-200 ${
@@ -745,12 +800,54 @@ function StudentsAdmin({ toast }: { toast: any }) {
               </button>
             </div>
             
-            <button
-              onClick={startAdd}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-            >
-              Add {activeTab === 'students' ? 'Student' : 'Teacher'}
-            </button>
+            {/* Bulk Actions */}
+            {!isBulkDeleteMode ? (
+              <>
+                <button
+                  onClick={() => setIsBulkDeleteMode(true)}
+                  className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors"
+                >
+                  Bulk Delete
+                </button>
+                <button
+                  onClick={startAdd}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                >
+                  Add {activeTab === 'students' ? 'Student' : 'Teacher'}
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={selectAllItems}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+                >
+                  Select All
+                </button>
+                <button
+                  onClick={clearSelection}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+                >
+                  Clear ({selectedItems.size})
+                </button>
+                <button
+                  onClick={bulkDelete}
+                  disabled={selectedItems.size === 0 || saving}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {saving ? 'Deleting...' : `Delete Selected (${selectedItems.size})`}
+                </button>
+                <button
+                  onClick={() => {
+                    setIsBulkDeleteMode(false);
+                    clearSelection();
+                  }}
+                  className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors"
+                >
+                  Cancel
+                </button>
+              </>
+            )}
           </div>
         </div>
 
@@ -772,9 +869,21 @@ function StudentsAdmin({ toast }: { toast: any }) {
                 key={student.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-gray-50 rounded-lg p-4 border hover:shadow-md transition-shadow"
+                className={`bg-gray-50 rounded-lg p-4 border hover:shadow-md transition-shadow ${
+                  selectedItems.has(student.id) ? 'ring-2 ring-blue-500 bg-blue-50' : ''
+                }`}
               >
                 <div className="flex items-center space-x-3 mb-3">
+                  {/* Selection Checkbox */}
+                  {isBulkDeleteMode && (
+                    <input
+                      type="checkbox"
+                      checked={selectedItems.has(student.id)}
+                      onChange={() => toggleItemSelection(student.id)}
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                    />
+                  )}
+                  
                   {student.profilePic ? (
                     <img
                       src={student.profilePic}
@@ -831,20 +940,22 @@ function StudentsAdmin({ toast }: { toast: any }) {
                 {student.bio && (
                   <p className="text-sm text-gray-700 mb-3 line-clamp-2">{student.bio}</p>
                 )}
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => startEdit(student)}
-                    className="flex-1 px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => onDelete(student.id)}
-                    className="flex-1 px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
-                  >
-                    Delete
-                  </button>
-                </div>
+                {!isBulkDeleteMode && (
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => startEdit(student)}
+                      className="flex-1 px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => onDelete(student.id)}
+                      className="flex-1 px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
               </motion.div>
             ))}
           </div>
@@ -1026,6 +1137,8 @@ function ArticlesAdmin({ toast }: { toast: any }) {
   const [items, setItems] = useState<any[]>([]);
   const [students, setStudents] = useState<any[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [isBulkDeleteMode, setIsBulkDeleteMode] = useState(false);
   const [form, setForm] = useState({ title: '', content: '', authorId: '', coverImageUrl: '' });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -1102,6 +1215,56 @@ function ArticlesAdmin({ toast }: { toast: any }) {
     }
   }
 
+  // Bulk delete functions
+  function toggleItemSelection(id: string) {
+    const newSelected = new Set(selectedItems);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedItems(newSelected);
+  }
+
+  function selectAllItems() {
+    const allIds = new Set(paginatedItems.map(item => item.id));
+    setSelectedItems(allIds);
+  }
+
+  function clearSelection() {
+    setSelectedItems(new Set());
+  }
+
+  async function bulkDelete() {
+    if (selectedItems.size === 0) return;
+    
+    if (!confirm(`Delete ${selectedItems.size} article${selectedItems.size > 1 ? 's' : ''}?`)) return;
+    
+    setSaving(true);
+    try {
+      const deletePromises = Array.from(selectedItems).map(id => deleteArticle(id));
+      
+      const results = await Promise.all(deletePromises);
+      const successCount = results.filter(r => r.success).length;
+      const failCount = results.length - successCount;
+      
+      if (successCount > 0) {
+        toast.success(`${successCount} article${successCount > 1 ? 's' : ''} deleted successfully!`);
+        await refresh();
+        clearSelection();
+        setIsBulkDeleteMode(false);
+      }
+      
+      if (failCount > 0) {
+        toast.error(`Failed to delete ${failCount} article${failCount > 1 ? 's' : ''}`);
+      }
+    } catch (error) {
+      toast.error('Bulk delete failed');
+    } finally {
+      setSaving(false);
+    }
+  }
+
   const filteredItems = items.filter(item =>
     item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.author?.name?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -1125,12 +1288,55 @@ function ArticlesAdmin({ toast }: { toast: any }) {
             <h2 className="text-2xl font-bold text-gray-900">Articles</h2>
             <p className="text-gray-600">Manage blog articles and content</p>
           </div>
-          <button
-            onClick={startAdd}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-          >
-            Add Article
-          </button>
+          
+          {/* Bulk Actions */}
+          {!isBulkDeleteMode ? (
+            <>
+              <button
+                onClick={() => setIsBulkDeleteMode(true)}
+                className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors"
+              >
+                Bulk Delete
+              </button>
+              <button
+                onClick={startAdd}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+              >
+                Add Article
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={selectAllItems}
+                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+              >
+                Select All
+              </button>
+              <button
+                onClick={clearSelection}
+                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+              >
+                Clear ({selectedItems.size})
+              </button>
+              <button
+                onClick={bulkDelete}
+                disabled={selectedItems.size === 0 || saving}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {saving ? 'Deleting...' : `Delete Selected (${selectedItems.size})`}
+              </button>
+              <button
+                onClick={() => {
+                  setIsBulkDeleteMode(false);
+                  clearSelection();
+                }}
+                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors"
+              >
+                Cancel
+              </button>
+            </>
+          )}
         </div>
 
         {/* Search */}
@@ -1163,9 +1369,21 @@ function ArticlesAdmin({ toast }: { toast: any }) {
                   key={article.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-gray-50 rounded-lg p-4 border hover:shadow-md transition-shadow"
+                  className={`bg-gray-50 rounded-lg p-4 border hover:shadow-md transition-shadow ${
+                    selectedItems.has(article.id) ? 'ring-2 ring-blue-500 bg-blue-50' : ''
+                  }`}
                 >
                   <div className="flex items-start space-x-4">
+                    {/* Selection Checkbox */}
+                    {isBulkDeleteMode && (
+                      <input
+                        type="checkbox"
+                        checked={selectedItems.has(article.id)}
+                        onChange={() => toggleItemSelection(article.id)}
+                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 mt-1"
+                      />
+                    )}
+                    
                     {article.coverImageUrl && (
                       <div className="flex-shrink-0">
                         <img
@@ -1180,20 +1398,22 @@ function ArticlesAdmin({ toast }: { toast: any }) {
                       <p className="text-sm text-gray-600 mb-2">By {article.author?.name || 'Unknown'}</p>
                       <p className="text-sm text-gray-700 line-clamp-2">{article.content}</p>
                     </div>
-                    <div className="flex space-x-2 ml-4">
-                      <button
-                        onClick={() => startEdit(article)}
-                        className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => onDelete(article.id)}
-                        className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
-                      >
-                        Delete
-                      </button>
-                    </div>
+                    {!isBulkDeleteMode && (
+                      <div className="flex space-x-2 ml-4">
+                        <button
+                          onClick={() => startEdit(article)}
+                          className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => onDelete(article.id)}
+                          className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               ))}
