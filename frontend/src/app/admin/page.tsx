@@ -769,10 +769,10 @@ function StudentsAdmin({ toast }: { toast: any }) {
         <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">
-                  {activeTab === 'students' ? 'Students/Teachers' : 'Teachers'}
+                  {activeTab === 'students' ? 'Students' : 'Teachers'}
                 </h2>
                 <p className="text-gray-600">
-                  Manage {activeTab === 'students' ? 'students and teachers' : 'teachers'} shown across the site
+                  Manage {activeTab} shown across the site
                 </p>
               </div>
           <div className="flex items-center space-x-4">
@@ -786,7 +786,7 @@ function StudentsAdmin({ toast }: { toast: any }) {
                         : 'text-gray-600 hover:text-gray-900'
                     }`}
                   >
-                    Students/Teachers
+                    Students
                   </button>
               <button
                 onClick={() => setActiveTab('teachers')}
