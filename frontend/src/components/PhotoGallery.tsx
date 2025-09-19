@@ -104,15 +104,15 @@ export default function PhotoGallery() {
       <div className="container-custom">
         {/* Category Filter */}
         <ScrollAnimation>
-          <StaggerAnimation className="flex flex-wrap justify-center gap-4 mb-12" staggerDelay={0.1}>
+          <StaggerAnimation className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8 sm:mb-12" staggerDelay={0.1}>
             {categories.map((category) => (
               <motion.button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`px-6 py-3 rounded-full font-medium transition-all duration-200 ${
+                className={`px-4 py-2 sm:px-6 sm:py-3 rounded-full font-medium transition-all duration-300 text-sm sm:text-base touch-target ${
                   selectedCategory === category
-                    ? 'bg-primary-600 text-white shadow-lg'
-                    : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
+                    ? 'bg-primary-600 text-white shadow-lg hover:shadow-xl'
+                    : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200 hover:shadow-md'
                 }`}
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
@@ -124,14 +124,14 @@ export default function PhotoGallery() {
         </ScrollAnimation>
 
         {/* Photo Grid */}
-        <StaggerAnimation className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" staggerDelay={0.1}>
+        <StaggerAnimation className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8" staggerDelay={0.1}>
           {filteredPhotos.map((photo, index) => (
             <motion.div
               key={photo.id}
-              className="group relative overflow-hidden rounded-xl bg-white shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer"
+              className="group relative overflow-hidden rounded-2xl bg-white shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer"
               onClick={() => openLightbox(index)}
               whileHover={{ 
-                y: -10, 
+                y: -8, 
                 scale: 1.02,
                 transition: { duration: 0.3, ease: 'easeOut' }
               }}
@@ -141,7 +141,7 @@ export default function PhotoGallery() {
                 <motion.img
                   src={photo.imageUrl}
                   alt={photo.title}
-                  className="w-full h-64 object-cover"
+                  className="w-full h-48 sm:h-56 lg:h-64 object-cover"
                   whileHover={{ scale: 1.1 }}
                   transition={{ duration: 0.4, ease: 'easeOut' }}
                 />
@@ -158,36 +158,37 @@ export default function PhotoGallery() {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  <div className="w-16 h-16 bg-white bg-opacity-95 rounded-full flex items-center justify-center shadow-lg">
-                    <ZoomIn className="w-8 h-8 text-primary-600" />
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white bg-opacity-95 rounded-full flex items-center justify-center shadow-lg">
+                    <ZoomIn className="w-6 h-6 sm:w-8 sm:h-8 text-primary-600" />
                   </div>
                 </motion.div>
               </motion.div>
 
               {/* Content */}
               <motion.div 
-                className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4"
+                className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-3 sm:p-4"
                 initial={{ y: 20, opacity: 0 }}
                 whileHover={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.3 }}
               >
                 <div className="text-white">
                   <motion.h3 
-                    className="text-lg font-semibold mb-1"
+                    className="text-base sm:text-lg font-semibold mb-1 line-clamp-2"
                     whileHover={{ x: 5 }}
                     transition={{ duration: 0.2 }}
                   >
                     {photo.title}
                   </motion.h3>
-                  <p className="text-sm text-gray-200 mb-2">{photo.description}</p>
-                  <div className="flex items-center space-x-4 text-xs text-gray-300">
+                  <p className="text-xs sm:text-sm text-gray-200 mb-2 line-clamp-2">{photo.description}</p>
+                  <div className="flex items-center space-x-3 sm:space-x-4 text-xs text-gray-300">
                     <div className="flex items-center space-x-1">
                       <Calendar className="w-3 h-3" />
-                      <span>{new Date(photo.date).toLocaleDateString()}</span>
+                      <span className="hidden sm:inline">{new Date(photo.date).toLocaleDateString()}</span>
+                      <span className="sm:hidden">{new Date(photo.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Tag className="w-3 h-3" />
-                      <span>{photo.category}</span>
+                      <span className="truncate">{photo.category}</span>
                     </div>
                   </div>
                 </div>

@@ -170,50 +170,50 @@ export default function StudentsPreview() {
           </div>
         </motion.div>
 
-        {/* Class Stats - Only show for students */}
-        {activeTab === 'students' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
-          >
-            <div className="bg-white rounded-xl p-6 text-center shadow-lg">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Users className="w-6 h-6 text-blue-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-1">{stats.total}</h3>
-              <p className="text-gray-600">Total Students</p>
-            </div>
-            <div className="bg-white rounded-xl p-6 text-center shadow-lg">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <User className="w-6 h-6 text-green-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-1">{stats.male}</h3>
-              <p className="text-gray-600">Male Students</p>
-            </div>
-            <div className="bg-white rounded-xl p-6 text-center shadow-lg">
-              <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <User className="w-6 h-6 text-pink-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-1">{stats.female}</h3>
-              <p className="text-gray-600">Female Students</p>
-            </div>
-          </motion.div>
-        )}
+            {/* Class Stats - Only show for students */}
+            {activeTab === 'students' && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                viewport={{ once: true }}
+                className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12"
+              >
+                <div className="bg-white rounded-2xl p-4 sm:p-6 text-center shadow-lg hover:shadow-xl transition-all duration-300">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{stats.total}</h3>
+                  <p className="text-sm sm:text-base text-gray-600">Total Students</p>
+                </div>
+                <div className="bg-white rounded-2xl p-4 sm:p-6 text-center shadow-lg hover:shadow-xl transition-all duration-300">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <User className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{stats.male}</h3>
+                  <p className="text-sm sm:text-base text-gray-600">Male Students</p>
+                </div>
+                <div className="bg-white rounded-2xl p-4 sm:p-6 text-center shadow-lg hover:shadow-xl transition-all duration-300">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <User className="w-5 h-5 sm:w-6 sm:h-6 text-pink-600" />
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{stats.female}</h3>
+                  <p className="text-sm sm:text-base text-gray-600">Female Students</p>
+                </div>
+              </motion.div>
+            )}
 
         {/* Student/Teacher Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {(activeTab === 'students' ? students.length === 0 : teachers.length === 0) ? (
-            <div className="col-span-full text-center py-12">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-8 h-8 text-gray-400" />
+            <div className="col-span-full text-center py-8 sm:py-12">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-2">
+              <h3 className="text-lg sm:text-xl font-medium text-gray-900 mb-2">
                 No {activeTab === 'students' ? 'Students' : 'Teachers'} Yet
               </h3>
-              <p className="text-gray-600">
+              <p className="text-sm sm:text-base text-gray-600">
                 {activeTab === 'students' ? 'Student' : 'Teacher'} profiles will appear here once they're added to the system.
               </p>
             </div>
@@ -227,43 +227,43 @@ export default function StudentsPreview() {
                 viewport={{ once: true }}
                 className="card group hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
               >
-                <div className="p-6 text-center">
+                <div className="p-4 sm:p-6 text-center">
                   {/* Profile Picture */}
                   {item.profilePic ? (
                     <img
                       src={item.profilePic}
                       alt={item.name}
-                      className="w-20 h-20 rounded-full mx-auto mb-4 object-cover border-4 border-gray-100 group-hover:border-blue-200 transition-colors"
+                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mx-auto mb-3 sm:mb-4 object-cover border-4 border-gray-100 group-hover:border-blue-200 transition-colors"
                     />
                   ) : (
-                    <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:bg-blue-200 transition-colors">
                       {activeTab === 'students' ? (
-                        <User className="w-10 h-10 text-blue-600" />
+                        <User className="w-8 h-8 sm:w-10 sm:h-10 text-blue-600" />
                       ) : (
-                        <GraduationCap className="w-10 h-10 text-blue-600" />
+                        <GraduationCap className="w-8 h-8 sm:w-10 sm:h-10 text-blue-600" />
                       )}
                     </div>
                   )}
                   
                   {/* Name and Nickname */}
-                  <h3 className="text-lg font-bold text-gray-900 mb-1">{item.name}</h3>
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1 line-clamp-1">{item.name}</h3>
                   {item.nickname && (
-                    <p className="text-sm text-gray-500 mb-2">"{item.nickname}"</p>
+                    <p className="text-xs sm:text-sm text-gray-500 mb-2 line-clamp-1">"{item.nickname}"</p>
                   )}
                   
                   {/* Role */}
-                  <p className="text-blue-600 font-medium mb-3">{item.role}</p>
+                  <p className="text-blue-600 font-medium mb-2 sm:mb-3 text-sm sm:text-base line-clamp-1">{item.role}</p>
                   
                   {/* Subject (for teachers) */}
                   {activeTab === 'teachers' && 'subject' in item && item.subject && (
-                    <p className="text-sm text-gray-600 mb-3 font-medium">{item.subject}</p>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3 font-medium line-clamp-1">{item.subject}</p>
                   )}
                   
                   {/* Bio Preview */}
                   {item.bio && (
-                    <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
-                      {item.bio.length > 80 
-                        ? `${item.bio.substring(0, 80)}...` 
+                    <p className="text-gray-600 text-xs sm:text-sm leading-relaxed line-clamp-2">
+                      {item.bio.length > 60 
+                        ? `${item.bio.substring(0, 60)}...` 
                         : item.bio
                       }
                     </p>

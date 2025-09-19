@@ -33,31 +33,31 @@ export default function Header() {
     <motion.header
       className={`sticky top-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-secondary-200'
-          : 'bg-white shadow-sm border-b border-secondary-200'
+          ? 'bg-white/95 backdrop-blur-md shadow-xl border-b border-secondary-200'
+          : 'bg-white/90 backdrop-blur-sm shadow-sm border-b border-secondary-200'
       }`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: 'easeOut' }}
     >
       <nav className="container-custom">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-16 sm:h-18 lg:h-20">
           {/* Logo */}
           <motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Link href="/" className="flex items-center space-x-2">
+            <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
               <motion.div
-                className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center"
+                className="w-10 h-10 sm:w-12 sm:h-12 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg"
                 whileHover={{ rotate: 360 }}
                 transition={{ duration: 0.6 }}
               >
-                <GraduationCap className="w-6 h-6 text-white" />
+                <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
               </motion.div>
               <div className="hidden sm:block">
                 <motion.h1
-                  className="text-xl font-bold text-secondary-900"
+                  className="text-lg sm:text-xl lg:text-2xl font-bold text-secondary-900"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.2 }}
@@ -65,7 +65,7 @@ export default function Header() {
                   Science 1B
                 </motion.h1>
                 <motion.p
-                  className="text-sm text-secondary-600"
+                  className="text-xs sm:text-sm text-secondary-600"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 }}
@@ -77,7 +77,7 @@ export default function Header() {
           </motion.div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
             {navigation.map((item, index) => (
               <motion.div
                 key={item.name}
@@ -87,30 +87,27 @@ export default function Header() {
               >
                 <Link
                   href={item.href}
-                  className={`relative px-3 py-2 text-sm font-medium transition-colors duration-200 group ${
+                  className={`relative px-3 py-2 text-sm lg:text-base font-medium transition-all duration-300 group rounded-lg ${
                     pathname === item.href
-                      ? 'text-primary-600'
-                      : 'text-secondary-700 hover:text-primary-600'
+                      ? 'text-primary-600 bg-primary-50'
+                      : 'text-secondary-700 hover:text-primary-600 hover:bg-primary-50'
                   }`}
                 >
                   <motion.span
                     whileHover={{ y: -2 }}
                     transition={{ duration: 0.2 }}
+                    className="relative z-10"
                   >
                     {item.name}
                   </motion.span>
                   {pathname === item.href && (
                     <motion.div
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600"
+                      className="absolute inset-0 bg-primary-100 rounded-lg"
                       layoutId="activeTab"
                       initial={false}
                       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                     />
                   )}
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-200"
-                    initial={false}
-                  />
                 </Link>
               </motion.div>
             ))}
@@ -119,10 +116,10 @@ export default function Header() {
           {/* Mobile menu button */}
           <motion.button
             type="button"
-            className="md:hidden p-2 rounded-md text-secondary-700 hover:text-primary-600 hover:bg-secondary-100"
+            className="md:hidden p-3 rounded-xl text-secondary-700 hover:text-primary-600 hover:bg-primary-50 touch-target"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4 }}
@@ -145,13 +142,13 @@ export default function Header() {
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="md:hidden border-t border-secondary-200"
+              initial={{ opacity: 0, height: 0, y: -20 }}
+              animate={{ opacity: 1, height: 'auto', y: 0 }}
+              exit={{ opacity: 0, height: 0, y: -20 }}
+              transition={{ duration: 0.4, ease: 'easeInOut' }}
+              className="md:hidden border-t border-secondary-200 bg-white/95 backdrop-blur-sm"
             >
-              <div className="px-2 pt-2 pb-3 space-y-1">
+              <div className="px-4 pt-4 pb-6 space-y-2">
                 {navigation.map((item, index) => (
                   <motion.div
                     key={item.name}
@@ -162,18 +159,28 @@ export default function Header() {
                   >
                     <Link
                       href={item.href}
-                      className={`block px-3 py-2 text-base font-medium rounded-md transition-colors duration-200 ${
+                      className={`block px-4 py-3 text-base font-medium rounded-xl transition-all duration-300 touch-target ${
                         pathname === item.href
-                          ? 'text-primary-600 bg-primary-50'
-                          : 'text-secondary-700 hover:text-primary-600 hover:bg-secondary-100'
+                          ? 'text-primary-600 bg-primary-50 shadow-sm'
+                          : 'text-secondary-700 hover:text-primary-600 hover:bg-primary-50 hover:shadow-sm'
                       }`}
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <motion.span
                         whileHover={{ x: 5 }}
+                        whileTap={{ scale: 0.95 }}
                         transition={{ duration: 0.2 }}
+                        className="flex items-center justify-between"
                       >
                         {item.name}
+                        {pathname === item.href && (
+                          <motion.div
+                            className="w-2 h-2 bg-primary-600 rounded-full"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ duration: 0.2 }}
+                          />
+                        )}
                       </motion.span>
                     </Link>
                   </motion.div>
