@@ -314,12 +314,42 @@
   transform: translateZ(0);
 }
 
-/* Mobile-specific animation optimizations */
+/* Mobile-specific optimizations */
+@media (max-width: 640px) {
+  /* Extra small screens - optimize for very small devices */
+  .container-custom {
+    @apply px-3;
+  }
+  
+  /* Reduce font sizes for better fit */
+  h1 {
+    @apply text-2xl;
+  }
+  
+  h2 {
+    @apply text-xl;
+  }
+  
+  h3 {
+    @apply text-lg;
+  }
+  
+  /* Improve button sizing for touch */
+  .btn {
+    @apply px-3 py-2 text-sm min-h-[40px];
+  }
+  
+  /* Optimize spacing */
+  .section-padding {
+    @apply py-8;
+  }
+}
+
 @media (max-width: 768px) {
   /* Reduce animation complexity on mobile */
   * {
-    animation-duration: 0.2s !important;
-    transition-duration: 0.2s !important;
+    animation-duration: 0.3s !important;
+    transition-duration: 0.3s !important;
   }
   
   /* Disable heavy animations on mobile */
@@ -339,8 +369,32 @@
   
   /* Reduce motion on mobile for better performance */
   .mobile-reduced-motion {
-    animation-duration: 0.1s !important;
-    transition-duration: 0.1s !important;
+    animation-duration: 0.2s !important;
+    transition-duration: 0.2s !important;
+  }
+  
+  /* Improve touch targets */
+  button, a, input, select, textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Better spacing for mobile */
+  .container-custom {
+    @apply px-4;
+  }
+  
+  /* Optimize grid layouts for mobile */
+  .grid-responsive {
+    @apply grid-cols-1 gap-4;
+  }
+  
+  .grid-responsive-2 {
+    @apply grid-cols-1 sm:grid-cols-2 gap-4;
+  }
+  
+  .grid-responsive-3 {
+    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4;
   }
 }
 

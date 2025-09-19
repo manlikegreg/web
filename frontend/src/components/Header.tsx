@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, GraduationCap } from 'lucide-react';
+import { Menu, X, GraduationCap, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const navigation = [
@@ -113,29 +113,44 @@ export default function Header() {
             ))}
           </div>
 
-          {/* Mobile Navigation - Direct Buttons */}
+          {/* Mobile Navigation - Responsive Layout */}
           <div className="md:hidden flex items-center space-x-1">
-            {navigation.slice(0, 4).map((item, index) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`px-2 py-2 text-xs font-medium rounded-lg transition-all duration-200 touch-target ${
-                  pathname === item.href
+            {/* Primary navigation items - responsive based on screen width */}
+            <div className="flex items-center space-x-1">
+              {navigation.slice(0, 3).map((item, index) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`px-2 py-2 text-xs font-medium rounded-lg transition-all duration-200 touch-target whitespace-nowrap ${
+                    pathname === item.href
+                      ? 'text-primary-600 bg-primary-50'
+                      : 'text-secondary-700 hover:text-primary-600 hover:bg-primary-50'
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </div>
+            
+            {/* Dropdown for additional items */}
+            <div className="relative">
+              <motion.button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className={`px-2 py-2 text-xs font-medium rounded-lg transition-all duration-200 touch-target flex items-center space-x-1 ${
+                  mobileMenuOpen
                     ? 'text-primary-600 bg-primary-50'
                     : 'text-secondary-700 hover:text-primary-600 hover:bg-primary-50'
                 }`}
+                whileTap={{ scale: 0.95 }}
               >
-                {item.name}
-              </Link>
-            ))}
-            {/* More button for remaining items */}
-            <div className="relative">
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="px-2 py-2 text-xs font-medium rounded-lg text-secondary-700 hover:text-primary-600 hover:bg-primary-50 touch-target"
-              >
-                More
-              </button>
+                <span className="hidden xs:inline">More</span>
+                <motion.div
+                  animate={{ rotate: mobileMenuOpen ? 180 : 0 }}
+                  transition={{ duration: 0.2, ease: 'easeInOut' }}
+                >
+                  <ChevronDown className="w-3 h-3" />
+                </motion.div>
+              </motion.button>
             </div>
           </div>
         </div>
@@ -147,23 +162,29 @@ export default function Header() {
               initial={{ opacity: 0, height: 0, y: -10 }}
               animate={{ opacity: 1, height: 'auto', y: 0 }}
               exit={{ opacity: 0, height: 0, y: -10 }}
-              transition={{ duration: 0.2, ease: 'easeInOut' }}
-              className="md:hidden border-t border-secondary-200 bg-white/95 backdrop-blur-sm"
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="md:hidden border-t border-secondary-200 bg-white/95 backdrop-blur-sm shadow-lg"
             >
               <div className="px-4 pt-3 pb-4 space-y-1">
-                {navigation.slice(4).map((item, index) => (
-                  <Link
+                {navigation.slice(3).map((item, index) => (
+                  <motion.div
                     key={item.name}
-                    href={item.href}
-                    className={`block px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 touch-target ${
-                      pathname === item.href
-                        ? 'text-primary-600 bg-primary-50'
-                        : 'text-secondary-700 hover:text-primary-600 hover:bg-primary-50'
-                    }`}
-                    onClick={() => setMobileMenuOpen(false)}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05, duration: 0.2 }}
                   >
-                    {item.name}
-                  </Link>
+                    <Link
+                      href={item.href}
+                      className={`block px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 touch-target ${
+                        pathname === item.href
+                          ? 'text-primary-600 bg-primary-50'
+                          : 'text-secondary-700 hover:text-primary-600 hover:bg-primary-50'
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  </motion.div>
                 ))}
               </div>
             </motion.div>
