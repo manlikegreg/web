@@ -1,9 +1,19 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Crown, Users, Award, Star } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Crown, Users, Award, Star, X } from 'lucide-react';
 
-const leadership = [
+// Define the type for a leader
+interface Leader {
+  name: string;
+  role: string;
+  bio: string;
+  imageUrl: string;
+  achievements: string[];
+}
+
+const leadership: Leader[] = [
   {
     name: 'Kwame Asante',
     role: 'Class Prefect',
@@ -62,6 +72,8 @@ const committees = [
 ];
 
 export default function Leadership() {
+  const [selectedLeader, setSelectedLeader] = useState<Leader | null>(null);
+
   return (
     <section className="section-padding bg-white">
       <div className="container-custom">
@@ -90,7 +102,8 @@ export default function Leadership() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="card p-6 text-center group hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+              className="card p-6 text-center group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer"
+              onClick={() => setSelectedLeader(leader)}
             >
               <div className="relative mb-4">
                 <img
@@ -210,6 +223,61 @@ export default function Leadership() {
             </div>
           </div>
         </motion.div>
+
+        {/* Modal for leader details */}
+        <AnimatePresence>
+          {selectedLeader && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
+              onClick={() => setSelectedLeader(null)}
+            >
+              <motion.div
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 50, opacity: 0 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="bg-white rounded-lg shadow-2xl max-w-lg w-full p-8 relative"
+                onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
+              >
+                <button
+                  onClick={() => setSelectedLeader(null)}
+                  className="absolute top-4 right-4 text-secondary-500 hover:text-secondary-800 transition-colors"
+                >
+                  <X size={24} />
+                </button>
+
+                <div className="text-center">
+                  <img
+                    src={selectedLeader.imageUrl}
+                    alt={selectedLeader.name}
+                    className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-primary-200 mb-4"
+                  />
+                  <h2 className="text-3xl font-bold text-secondary-900">{selectedLeader.name}</h2>
+                  <p className="text-primary-600 font-medium text-lg mb-4">{selectedLeader.role}</p>
+                </div>
+
+                <p className="text-secondary-600 text-center mb-6">{selectedLeader.bio}</p>
+
+                <div>
+                  <h4 className="text-xl font-semibold text-secondary-800 mb-3 text-center">Achievements</h4>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {selectedLeader.achievements.map((achievement, idx) => (
+                      <span
+                        key={idx}
+                        className="px-3 py-1 bg-primary-100 text-primary-700 text-sm rounded-full"
+                      >
+                        {achievement}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );
