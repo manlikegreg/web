@@ -28,11 +28,9 @@ npm --version
 
 You should see something like:
 ```
-v20.10.0
-10.2.3
+v18.17.0
+9.6.7
 ```
-
-**If you see a version lower than 18.17.0, you MUST update Node.js before continuing.**
 
 ### 4. If Commands Don't Work
 If you get "command not found" errors:
@@ -50,6 +48,22 @@ cd C:\Users\simon\science-1b-website
 node --version
 npm --version
 ```
+
+### 6. Fix "setBlocking is not a function" Error
+If you encounter the error `TypeError: process.stdout._handle.setBlocking is not a function`:
+
+1. **Check your Node.js version**: `node --version`
+2. **If version is below 18.17.0**: Download and install Node.js 20.0.0 LTS from https://nodejs.org/
+3. **Restart your computer** after installation
+4. **Verify the new version**: `node --version` should show 20.x.x
+5. **Clear npm cache**: `npm cache clean --force`
+6. **Reinstall dependencies**: 
+   ```bash
+   cd frontend
+   rm -rf node_modules package-lock.json
+   npm install
+   ```
+7. **Try running the project again**
 
 ## Alternative: Use Node Version Manager (Advanced)
 If you want to manage multiple Node.js versions:

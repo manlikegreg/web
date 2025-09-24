@@ -147,6 +147,18 @@ taskkill /PID <PID_NUMBER> /F
 
 #### Build Errors
 ```bash
+# If you get "setBlocking is not a function" error:
+# 1. Check Node.js version: node --version
+# 2. If below 18.17.0, update Node.js to 20.0.0 LTS
+# 3. Clear cache and reinstall:
+npm cache clean --force
+cd frontend
+rm -rf node_modules package-lock.json
+npm install
+cd ../backend-prisma
+rm -rf node_modules package-lock.json
+npm install
+
 # Clean and rebuild
 cd frontend
 rm -rf .next out
