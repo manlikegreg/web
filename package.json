@@ -32,7 +32,7 @@
     "db:push": "cd backend-prisma && npm run db:push",
     "db:seed": "cd backend-prisma && npm run db:seed",
     "db:studio": "cd backend-prisma && npm run db:studio",
-    "deploy:frontend": "cd frontend && npm run build && netlify deploy --prod --dir=.next",
+    "deploy:frontend": "cd frontend && npm run build && netlify deploy --prod --dir=frontend/out",
     "deploy:backend": "cd backend-prisma && git push origin main"
   },
   "devDependencies": {

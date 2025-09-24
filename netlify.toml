@@ -1,6 +1,6 @@
 [build]
   # Build command for Next.js
-  command = "npm run build"
+  command = "cd frontend && npm run build"
   
   # Directory to publish (Next.js static export output)
   publish = "frontend/out"
@@ -38,7 +38,7 @@
 # API proxy to backend (for development)
 [[redirects]]
   from = "/api/*"
-  to = "https://science-1b-backend-prisma.onrender.com/api/:splat"
+  to = "https://web-xplc.onrender.com/api/:splat"
   status = 200
   force = false
   conditions = {Role = ["admin"]}
@@ -47,18 +47,17 @@
 [context.production]
   [[context.production.redirects]]
     from = "/api/*"
-    to = "https://science-1b-backend-prisma.onrender.com/api/:splat"
+    to = "https://web-xplc.onrender.com/api/:splat"
     status = 200
 
 [context.deploy-preview]
   [[context.deploy-preview.redirects]]
     from = "/api/*"
-    to = "https://science-1b-backend-prisma.onrender.com/api/:splat"
+    to = "https://web-xplc.onrender.com/api/:splat"
     status = 200
 
 [context.branch-deploy]
   [[context.branch-deploy.redirects]]
     from = "/api/*"
-    to = "https://science-1b-backend-prisma.onrender.com/api/:splat"
-
+    to = "https://web-xplc.onrender.com/api/:splat"
     status = 200
