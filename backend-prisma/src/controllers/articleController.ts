@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { prisma } from '../server';
-import { ApiResponse, Article } from '../types';
+import { prisma } from '../server.js';
+import { ApiResponse, Article } from '../types/index.js';
 
 // GET /api/articles - Get all articles
 export const getAllArticles = async (req: Request, res: Response): Promise<void> => {
@@ -81,7 +81,7 @@ export const getArticleById = async (req: Request, res: Response): Promise<void>
 // POST /api/articles - Create new article
 export const createArticle = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { title, content, authorId } = req.body;
+    const { title, content, authorId, coverImageUrl } = req.body;
 
     // Check if author exists
     const author = await prisma.student.findUnique({
@@ -101,6 +101,7 @@ export const createArticle = async (req: Request, res: Response): Promise<void> 
         title,
         content,
         authorId,
+        coverImageUrl: coverImageUrl || null,
       },
       include: {
         author: true,
@@ -127,13 +128,15 @@ export const createArticle = async (req: Request, res: Response): Promise<void> 
 export const updateArticle = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { title, content } = req.body;
+    const { title, content, authorId, coverImageUrl } = req.body;
 
     const article = await prisma.article.update({
       where: { id },
       data: {
         title,
         content,
+        authorId: authorId ?? undefined,
+        coverImageUrl: coverImageUrl ?? undefined,
       },
       include: {
         author: true,

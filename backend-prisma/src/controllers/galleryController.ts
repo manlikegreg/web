@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { prisma } from '../server';
-import { ApiResponse, Gallery } from '../types';
+import { prisma } from '../server.js';
+import { ApiResponse, Gallery } from '../types/index.js';
 
 // GET /api/gallery - Get all gallery items
 export const getAllGalleryItems = async (req: Request, res: Response): Promise<void> => {
@@ -75,12 +75,15 @@ export const getGalleryItemById = async (req: Request, res: Response): Promise<v
 // POST /api/gallery - Create new gallery item
 export const createGalleryItem = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { imageUrl, caption } = req.body;
+    const { imageUrl, caption, order, category, type } = req.body;
 
     const galleryItem = await prisma.gallery.create({
       data: {
         imageUrl,
-        caption,
+        caption: caption || null,
+        order: typeof order === 'number' ? order : 0,
+        category: category || null,
+        type: type || null,
       },
     });
 
@@ -104,13 +107,16 @@ export const createGalleryItem = async (req: Request, res: Response): Promise<vo
 export const updateGalleryItem = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { imageUrl, caption } = req.body;
+    const { imageUrl, caption, order, category, type } = req.body;
 
     const galleryItem = await prisma.gallery.update({
       where: { id },
       data: {
         imageUrl,
-        caption,
+        caption: caption ?? undefined,
+        order: typeof order === 'number' ? order : undefined,
+        category: category ?? undefined,
+        type: type ?? undefined,
       },
     });
 

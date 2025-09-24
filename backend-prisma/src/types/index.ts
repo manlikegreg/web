@@ -2,8 +2,8 @@ export interface Student {
   id: string;
   name: string;
   role: string;
-  profilePic?: string;
-  bio?: string;
+  profilePic?: string | null;
+  bio?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,7 +21,7 @@ export interface Article {
 export interface Gallery {
   id: string;
   imageUrl: string;
-  caption?: string;
+  caption?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

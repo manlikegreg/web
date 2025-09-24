@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { prisma } from '../server';
-import { ApiResponse, Student } from '../types';
+import { prisma } from '../server.js';
+import { ApiResponse, Student } from '../types/index.js';
 
 // GET /api/students - Get all students
 export const getAllStudents = async (req: Request, res: Response): Promise<void> => {
@@ -64,14 +64,24 @@ export const getStudentById = async (req: Request, res: Response): Promise<void>
 // POST /api/students - Create new student
 export const createStudent = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, role, profilePic, bio } = req.body;
+    const { name, nickname, role, subject, gender, phone, whatsapp, email, profilePic, bio, body, contactInfo } = req.body;
+    let { categories } = req.body as any;
+    if (typeof categories === 'string') categories = categories.split(',').map((s: string) => s.trim()).filter(Boolean);
 
     const student = await prisma.student.create({
       data: {
         name,
+        nickname: nickname || null,
         role,
-        profilePic,
-        bio,
+        gender: gender || null,
+        phone: phone || null,
+        whatsapp: whatsapp || null,
+        email: email || null,
+        profilePic: profilePic || null,
+        bio: bio || null,
+        body: body || null,
+        contactInfo: contactInfo || null,
+        categories: Array.isArray(categories) ? categories : [],
       },
     });
 
@@ -95,15 +105,25 @@ export const createStudent = async (req: Request, res: Response): Promise<void> 
 export const updateStudent = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, role, profilePic, bio } = req.body;
+    const { name, nickname, role, subject, gender, phone, whatsapp, email, profilePic, bio, body, contactInfo } = req.body;
+    let { categories } = req.body as any;
+    if (typeof categories === 'string') categories = categories.split(',').map((s: string) => s.trim()).filter(Boolean);
 
     const student = await prisma.student.update({
       where: { id },
       data: {
         name,
+        nickname: nickname ?? undefined,
         role,
-        profilePic,
-        bio,
+        gender: gender ?? undefined,
+        phone: phone ?? undefined,
+        whatsapp: whatsapp ?? undefined,
+        email: email ?? undefined,
+        profilePic: profilePic ?? undefined,
+        bio: bio ?? undefined,
+        body: body ?? undefined,
+        contactInfo: contactInfo ?? undefined,
+        categories: Array.isArray(categories) ? categories : undefined,
       },
     });
 

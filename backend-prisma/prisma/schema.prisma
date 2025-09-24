@@ -11,13 +11,21 @@ datasource db {
 }
 
 model Student {
-  id         String   @id @default(cuid())
-  name       String
-  role       String
-  profilePic String?  @map("profile_pic")
-  bio        String?
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  id           String   @id @default(cuid())
+  name         String
+  nickname     String?  // student nickname
+  role         String
+  categories   String[] @default([])
+  gender       String?  // 'male' or 'female'
+  phone        String?  // phone number
+  whatsapp     String?  // whatsapp number/link
+  email        String?  // email address
+  profilePic   String?  @map("profile_pic")
+  bio          String?  // short summary
+  body         String?  // detailed description
+  contactInfo  String?  @map("contact_info") // JSON string for additional contact info
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   // Relations
   articles Article[]
@@ -25,13 +33,34 @@ model Student {
   @@map("students")
 }
 
+model Teacher {
+  id           String   @id @default(cuid())
+  name         String
+  nickname     String?  // teacher nickname
+  role         String   // e.g., "Mathematics Teacher", "Physics Teacher"
+  subject      String?  // subject they teach
+  gender       String?  // 'male' or 'female'
+  phone        String?  // phone number
+  whatsapp     String?  // whatsapp number/link
+  email        String?  // email address
+  profilePic   String?  @map("profile_pic")
+  bio          String?  // short summary
+  body         String?  // detailed description
+  contactInfo  String?  @map("contact_info") // JSON string for additional contact info
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("teachers")
+}
+
 model Article {
-  id        String   @id @default(cuid())
-  title     String
-  content   String
-  authorId  String   @map("author_id")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id            String   @id @default(cuid())
+  title         String
+  content       String
+  authorId      String   @map("author_id")
+  coverImageUrl String?  @map("cover_image_url")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
   // Relations
   author Student @relation(fields: [authorId], references: [id], onDelete: Cascade)
@@ -43,8 +72,31 @@ model Gallery {
   id        String   @id @default(cuid())
   imageUrl  String   @map("image_url")
   caption   String?
+  category  String?  // e.g., Events, Activities, Academics, Sports, Community
+  type      String?  // 'photo' | 'video'
+  order     Int      @default(0)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("gallery")
+}
+
+model Leadership {
+  id         String   @id @default(cuid())
+  name       String
+  position   String
+  profilePic String?  @map("profile_pic")
+  bio        String?
+  order      Int      @default(0)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("leadership")
+}
+
+model Setting {
+  key   String @id
+  value String
+
+  @@map("settings")
 }

@@ -5,8 +5,9 @@ import {
   createGalleryItem,
   updateGalleryItem,
   deleteGalleryItem,
-} from '../controllers/galleryController';
-import { validateGallery, handleValidationErrors } from '../middleware/validation';
+} from '../controllers/galleryController.js';
+import { validateGallery, handleValidationErrors } from '../middleware/validation.js';
+import { prisma } from '../server.js';
 
 const router = express.Router();
 
@@ -24,5 +25,29 @@ router.put('/:id', validateGallery, handleValidationErrors, updateGalleryItem);
 
 // DELETE /api/gallery/:id - Delete gallery item
 router.delete('/:id', deleteGalleryItem);
+
+// PUT /api/gallery/reorder - Reorder gallery items
+router.put('/reorder', express.json(), async (req, res): Promise<void> => {
+  try {
+    const { items } = req.body;
+    if (!Array.isArray(items)) {
+      res.status(400).json({ success: false, error: 'Items must be an array' });
+      return;
+    }
+
+    // Update the order of items
+    for (let i = 0; i < items.length; i++) {
+      await prisma.gallery.update({
+        where: { id: items[i].id },
+        data: { order: i }
+      });
+    }
+
+    res.json({ success: true, message: 'Gallery items reordered successfully' });
+  } catch (error) {
+    console.error('Error reordering gallery items:', error);
+    res.status(500).json({ success: false, error: 'Failed to reorder gallery items' });
+  }
+});
 
 export default router;
