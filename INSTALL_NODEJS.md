@@ -28,9 +28,11 @@ npm --version
 
 You should see something like:
 ```
-v18.17.0
-9.6.7
+v20.10.0
+10.2.3
 ```
+
+**If you see a version lower than 18.17.0, you MUST update Node.js before continuing.**
 
 ### 4. If Commands Don't Work
 If you get "command not found" errors:
