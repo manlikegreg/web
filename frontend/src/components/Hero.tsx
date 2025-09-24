@@ -64,7 +64,7 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Full-screen gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-700 to-accent-600" />
       
@@ -75,35 +75,35 @@ export default function Hero() {
       <div className="absolute inset-0 bg-black/20" />
 
       {/* Main content */}
-      <div className="relative z-10 text-center px-4 max-w-6xl mx-auto">
+      <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-20 sm:py-24 lg:py-32">
         {/* Animated headline */}
         <motion.h1
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white mb-6 leading-tight"
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-white mb-4 sm:mb-6 leading-tight mobile-optimized"
         >
           <motion.span
-            initial={{ opacity: 0, x: -50 }}
+            initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="block"
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="block text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl"
           >
             Welcome to
           </motion.span>
           <motion.span
-            initial={{ opacity: 0, x: 50 }}
+            initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="block bg-gradient-to-r from-accent-300 to-accent-100 bg-clip-text text-transparent"
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="block bg-gradient-to-r from-accent-300 to-accent-100 bg-clip-text text-transparent text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl"
           >
             Science 1B
           </motion.span>
           <motion.span
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="block text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-normal text-white/90 mt-2"
+            transition={{ duration: 0.4, delay: 0.3 }}
+            className="block text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl font-normal text-white/90 mt-2 sm:mt-4"
           >
             St. John's Grammar SHS
           </motion.span>
@@ -111,32 +111,32 @@ export default function Hero() {
 
         {/* Sub-text */}
         <motion.p
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="text-lg md:text-xl lg:text-2xl text-white/80 mb-12 max-w-4xl mx-auto font-light"
+          transition={{ duration: 0.4, delay: 0.4 }}
+          className="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl text-white/80 mb-6 sm:mb-8 md:mb-12 max-w-4xl mx-auto font-light px-2 sm:px-4 mobile-optimized"
         >
           Excellence in Science, Innovation, and Teamwork
         </motion.p>
 
         {/* CTA Button */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1 }}
+          transition={{ duration: 0.4, delay: 0.5 }}
         >
           <motion.button
             onClick={scrollToNext}
-            className="group inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-primary-700 bg-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 hover:bg-accent-50"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            className="group inline-flex items-center justify-center px-4 py-3 xs:px-6 xs:py-4 sm:px-8 sm:py-4 text-sm xs:text-base sm:text-lg font-semibold text-primary-700 bg-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-200 hover:scale-105 hover:bg-accent-50 touch-target mobile-optimized"
+            whileHover={{ scale: 1.02, y: -1 }}
+            whileTap={{ scale: 0.98 }}
           >
             <span className="mr-2">Explore Magazine</span>
             <motion.div
-              animate={{ y: [0, 4, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
+              animate={{ y: [0, 3, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
             >
-              <ChevronDown className="w-6 h-6" />
+              <ChevronDown className="w-4 h-4 xs:w-5 xs:h-5 sm:w-6 sm:h-6" />
             </motion.div>
           </motion.button>
         </motion.div>
@@ -147,20 +147,20 @@ export default function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1, delay: 1.5 }}
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 cursor-pointer"
+        className="absolute bottom-3 xs:bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 cursor-pointer touch-target"
         onClick={scrollToNext}
       >
         <motion.div
-          animate={{ y: [0, 8, 0] }}
+          animate={{ y: [0, 6, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
           className="flex flex-col items-center text-white/60 hover:text-white transition-colors"
         >
-          <span className="text-sm font-medium mb-2">Scroll Down</span>
-          <div className="w-6 h-10 border-2 border-white/40 rounded-full flex justify-center">
+          <span className="text-xs xs:text-sm font-medium mb-1 xs:mb-2">Scroll Down</span>
+          <div className="w-4 h-6 xs:w-5 xs:h-8 sm:w-6 sm:h-10 border-2 border-white/40 rounded-full flex justify-center">
             <motion.div
-              animate={{ y: [0, 12, 0] }}
+              animate={{ y: [0, 8, 0] }}
               transition={{ duration: 1.5, repeat: Infinity }}
-              className="w-1 h-3 bg-white/60 rounded-full mt-2"
+              className="w-1 h-1.5 xs:h-2 sm:h-3 bg-white/60 rounded-full mt-1 xs:mt-1.5 sm:mt-2"
             />
           </div>
         </motion.div>

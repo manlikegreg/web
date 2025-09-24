@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, GraduationCap } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Menu, X, GraduationCap, ChevronDown } from 'lucide-react';
+import LightweightAnimation from '@/components/animations/LightweightAnimation';
 
 const navigation = [
   { name: 'Home', href: '/' },
   { name: 'About', href: '/about' },
+  { name: 'Students/Teachers', href: '/students' },
   { name: 'Gallery', href: '/gallery' },
   { name: 'Articles', href: '/articles' },
   { name: 'Contact', href: '/contact' },
@@ -29,158 +30,115 @@ export default function Header() {
   }, []);
 
   return (
-    <motion.header
+    <header
       className={`sticky top-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-secondary-200'
-          : 'bg-white shadow-sm border-b border-secondary-200'
+          ? 'bg-white/95 backdrop-blur-md shadow-xl border-b border-secondary-200'
+          : 'bg-white/90 backdrop-blur-sm shadow-sm border-b border-secondary-200'
       }`}
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
     >
       <nav className="container-custom">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-16 sm:h-18 lg:h-20">
           {/* Logo */}
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Link href="/" className="flex items-center space-x-2">
-              <motion.div
-                className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center"
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.6 }}
-              >
-                <GraduationCap className="w-6 h-6 text-white" />
-              </motion.div>
+          <div className="hover:scale-105 transition-transform duration-200">
+            <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg hover:rotate-12 transition-transform duration-300">
+                <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+              </div>
               <div className="hidden sm:block">
-                <motion.h1
-                  className="text-xl font-bold text-secondary-900"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
+                <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-secondary-900">
                   Science 1B
-                </motion.h1>
-                <motion.p
-                  className="text-sm text-secondary-600"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
+                </h1>
+                <p className="text-xs sm:text-sm text-secondary-600">
                   St. John's Grammar SHS
-                </motion.p>
+                </p>
               </div>
             </Link>
-          </motion.div>
+          </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
             {navigation.map((item, index) => (
-              <motion.div
-                key={item.name}
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * index }}
-              >
+              <div key={item.name}>
                 <Link
                   href={item.href}
-                  className={`relative px-3 py-2 text-sm font-medium transition-colors duration-200 group ${
+                  className={`relative px-3 py-2 text-sm lg:text-base font-medium transition-all duration-300 group rounded-lg hover:-translate-y-0.5 ${
                     pathname === item.href
-                      ? 'text-primary-600'
-                      : 'text-secondary-700 hover:text-primary-600'
+                      ? 'text-primary-600 bg-primary-50'
+                      : 'text-secondary-700 hover:text-primary-600 hover:bg-primary-50'
                   }`}
                 >
-                  <motion.span
-                    whileHover={{ y: -2 }}
-                    transition={{ duration: 0.2 }}
-                  >
+                  <span className="relative z-10">
                     {item.name}
-                  </motion.span>
+                  </span>
                   {pathname === item.href && (
-                    <motion.div
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600"
-                      layoutId="activeTab"
-                      initial={false}
-                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                    />
+                    <div className="absolute inset-0 bg-primary-100 rounded-lg transition-all duration-300" />
                   )}
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-200"
-                    initial={false}
-                  />
                 </Link>
-              </motion.div>
+              </div>
             ))}
           </div>
 
-          {/* Mobile menu button */}
-          <motion.button
-            type="button"
-            className="md:hidden p-2 rounded-md text-secondary-700 hover:text-primary-600 hover:bg-secondary-100"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.4 }}
-          >
-            <span className="sr-only">Open main menu</span>
-            <motion.div
-              animate={{ rotate: mobileMenuOpen ? 180 : 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              {mobileMenuOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
-            </motion.div>
-          </motion.button>
+          {/* Mobile Navigation - Responsive Layout */}
+          <div className="md:hidden flex items-center space-x-1">
+            {/* Primary navigation items - responsive based on screen width */}
+            <div className="flex items-center space-x-1">
+              {navigation.slice(0, 3).map((item, index) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`px-2 py-2 text-xs font-medium rounded-lg transition-all duration-200 touch-target whitespace-nowrap ${
+                    pathname === item.href
+                      ? 'text-primary-600 bg-primary-50'
+                      : 'text-secondary-700 hover:text-primary-600 hover:bg-primary-50'
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </div>
+            
+            {/* Dropdown for additional items */}
+            <div className="relative">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className={`px-2 py-2 text-xs font-medium rounded-lg transition-all duration-200 touch-target flex items-center space-x-1 active:scale-95 ${
+                  mobileMenuOpen
+                    ? 'text-primary-600 bg-primary-50'
+                    : 'text-secondary-700 hover:text-primary-600 hover:bg-primary-50'
+                }`}
+              >
+                <span className="hidden xs:inline">More</span>
+                <div className={`transition-transform duration-200 ${mobileMenuOpen ? 'rotate-180' : ''}`}>
+                  <ChevronDown className="w-3 h-3" />
+                </div>
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* Mobile Navigation */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="md:hidden border-t border-secondary-200"
-            >
-              <div className="px-2 pt-2 pb-3 space-y-1">
-                {navigation.map((item, index) => (
-                  <motion.div
-                    key={item.name}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ delay: index * 0.1 }}
+        {/* Mobile Navigation - Dropdown for remaining items */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-secondary-200 bg-white/95 backdrop-blur-sm shadow-lg transition-all duration-300">
+            <div className="px-4 pt-3 pb-4 space-y-1">
+              {navigation.slice(3).map((item, index) => (
+                <div key={item.name}>
+                  <Link
+                    href={item.href}
+                    className={`block px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 touch-target ${
+                      pathname === item.href
+                        ? 'text-primary-600 bg-primary-50'
+                        : 'text-secondary-700 hover:text-primary-600 hover:bg-primary-50'
+                    }`}
+                    onClick={() => setMobileMenuOpen(false)}
                   >
-                    <Link
-                      href={item.href}
-                      className={`block px-3 py-2 text-base font-medium rounded-md transition-colors duration-200 ${
-                        pathname === item.href
-                          ? 'text-primary-600 bg-primary-50'
-                          : 'text-secondary-700 hover:text-primary-600 hover:bg-secondary-100'
-                      }`}
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <motion.span
-                        whileHover={{ x: 5 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        {item.name}
-                      </motion.span>
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                    {item.name}
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </nav>
     </header>
   );

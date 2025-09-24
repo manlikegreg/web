@@ -1,6 +1,9 @@
 // API client for connecting to the backend
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000';
-const API_URL = process.env.NEXT_PUBLIC_API_URL || `${API_BASE_URL}/api`;
+// Hardcode deployed backend URL (ignore env overrides)
+const API_BASE_URL = 'https://web-xplc.onrender.com';
+const API_URL = `${API_BASE_URL}/api`;
+
+import { apiCache, CACHE_TTL } from './apiCache';
 
 // Types for API responses
 export interface ApiResponse<T> {
@@ -19,7 +22,28 @@ export interface ApiResponse<T> {
 export interface Student {
   id: string;
   name: string;
+  nickname?: string;
   role: string;
+  categories?: string[];
+  gender?: 'male' | 'female';
+  phone?: string;
+  whatsapp?: string;
+  profilePic?: string;
+  bio?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Teacher {
+  id: string;
+  name: string;
+  nickname?: string;
+  role: string;
+  subject?: string;
+  gender?: 'male' | 'female';
+  phone?: string;
+  whatsapp?: string;
+  email?: string;
   profilePic?: string;
   bio?: string;
   createdAt: string;
@@ -40,6 +64,19 @@ export interface Gallery {
   id: string;
   imageUrl: string;
   caption?: string;
+  category?: string;
+  type?: 'photo' | 'video';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Leadership {
+  id: string;
+  name: string;
+  position: string;
+  profilePic?: string;
+  bio?: string;
+  order: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -54,39 +91,128 @@ class ApiClient {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    useCache: boolean = true,
+    cacheTTL: number = CACHE_TTL.MEDIUM
   ): Promise<ApiResponse<T>> {
+    const method = (options.method || 'GET').toUpperCase();
+    const cacheKey = apiCache.generateKey(endpoint, options.body ? JSON.parse(options.body as string) : undefined);
+    
+    // Check cache for GET requests
+    if (method === 'GET' && useCache) {
+      const cachedData = apiCache.get<ApiResponse<T>>(cacheKey);
+      if (cachedData) {
+        return cachedData;
+      }
+    }
+
     const url = `${this.baseURL}${endpoint}`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // Increased timeout
+
+    const headers: Record<string, string> = {
+      ...(options.headers as any),
+    };
+    
+    if (method !== 'GET' && !headers['Content-Type']) {
+      headers['Content-Type'] = 'application/json';
+    }
     
     const config: RequestInit = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      headers,
+      mode: 'cors',
+      signal: controller.signal,
       ...options,
     };
 
-    try {
-      const response = await fetch(url, config);
-      const data = await response.json();
+    // Retry logic for failed requests
+    const maxRetries = 3;
+    let lastError: Error | null = null;
 
-      if (!response.ok) {
-        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const response = await fetch(url, config);
+        clearTimeout(timeoutId);
+        const data = await response.json();
+
+        if (!response.ok) {
+          // Don't retry on client errors (4xx) except 429 (rate limit)
+          if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+            throw new Error(data.error || `HTTP error! status: ${response.status}`);
+          }
+          
+          // For rate limiting or server errors, wait before retry
+          if (response.status === 429 || response.status >= 500) {
+            if (attempt < maxRetries) {
+              const waitTime = Math.pow(2, attempt) * 1000; // Exponential backoff
+              console.warn(`Request failed (attempt ${attempt}/${maxRetries}), retrying in ${waitTime}ms...`);
+              await new Promise(resolve => setTimeout(resolve, waitTime));
+              continue;
+            }
+          }
+          
+          throw new Error(data.error || `HTTP error! status: ${response.status}`);
+        }
+
+        // Cache successful GET responses
+        if (method === 'GET' && useCache && data.success) {
+          apiCache.set(cacheKey, data, cacheTTL);
+        }
+
+        return data;
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error('Unknown error');
+        
+        if (attempt < maxRetries) {
+          const waitTime = Math.pow(2, attempt) * 1000; // Exponential backoff
+          console.warn(`Request failed (attempt ${attempt}/${maxRetries}), retrying in ${waitTime}ms...`, error);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+        }
       }
-
-      return data;
-    } catch (error) {
-      console.error('API request failed:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'An unknown error occurred',
-      };
     }
+
+    clearTimeout(timeoutId);
+    console.error('API request failed after all retries:', lastError);
+    return {
+      success: false,
+      error: lastError?.message || 'An unknown error occurred',
+    };
   }
 
   // Students API
   async getStudents(): Promise<ApiResponse<Student[]>> {
-    return this.request<Student[]>('/students');
+    return this.request<Student[]>('/students', {}, true, CACHE_TTL.LONG);
+  }
+
+  // Settings API (site-wide content like Home/About/Contact)
+  async getSettings(): Promise<ApiResponse<Record<string, string>>> {
+    return this.request<Record<string, string>>('/settings', {}, true, CACHE_TTL.VERY_LONG);
+  }
+
+  async updateSettings(values: Record<string, string>): Promise<ApiResponse<null>> {
+    const result = await this.request<null>('/settings', {
+      method: 'PUT',
+      body: JSON.stringify(values),
+    }, false); // Don't cache PUT requests
+    
+    // Clear settings cache after update
+    if (result.success) {
+      apiCache.delete(apiCache.generateKey('/settings'));
+    }
+    
+    return result;
+  }
+
+  // Upload API
+  async uploadFile(file: File): Promise<ApiResponse<{ url: string }>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch(`${this.baseURL}/upload`, { method: 'POST', body: formData });
+    if (!res.ok) {
+      return { success: false, error: `Upload failed (${res.status})` } as any;
+    }
+    const data = await res.json();
+    return data;
   }
 
   async getStudent(id: string): Promise<ApiResponse<Student>> {
@@ -113,9 +239,38 @@ class ApiClient {
     });
   }
 
+  // Teachers API
+  async getTeachers(): Promise<ApiResponse<Teacher[]>> {
+    return this.request<Teacher[]>('/teachers', {}, true, CACHE_TTL.LONG);
+  }
+
+  async getTeacher(id: string): Promise<ApiResponse<Teacher>> {
+    return this.request<Teacher>(`/teachers/${id}`);
+  }
+
+  async createTeacher(teacher: Omit<Teacher, 'id' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<Teacher>> {
+    return this.request<Teacher>('/teachers', {
+      method: 'POST',
+      body: JSON.stringify(teacher),
+    });
+  }
+
+  async updateTeacher(id: string, teacher: Partial<Teacher>): Promise<ApiResponse<Teacher>> {
+    return this.request<Teacher>(`/teachers/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(teacher),
+    });
+  }
+
+  async deleteTeacher(id: string): Promise<ApiResponse<null>> {
+    return this.request<null>(`/teachers/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
   // Articles API
   async getArticles(page: number = 1, limit: number = 10): Promise<ApiResponse<Article[]>> {
-    return this.request<Article[]>(`/articles?page=${page}&limit=${limit}`);
+    return this.request<Article[]>(`/articles?page=${page}&limit=${limit}`, {}, true, CACHE_TTL.MEDIUM);
   }
 
   async getArticle(id: string): Promise<ApiResponse<Article>> {
@@ -144,7 +299,7 @@ class ApiClient {
 
   // Gallery API
   async getGalleryItems(page: number = 1, limit: number = 12): Promise<ApiResponse<Gallery[]>> {
-    return this.request<Gallery[]>(`/gallery?page=${page}&limit=${limit}`);
+    return this.request<Gallery[]>(`/gallery?page=${page}&limit=${limit}`, {}, true, CACHE_TTL.MEDIUM);
   }
 
   async getGalleryItem(id: string): Promise<ApiResponse<Gallery>> {
@@ -171,6 +326,42 @@ class ApiClient {
     });
   }
 
+  // Leadership API
+  async getLeadershipMembers(): Promise<ApiResponse<Leadership[]>> {
+    return this.request<Leadership[]>('/leadership', {}, true, CACHE_TTL.LONG);
+  }
+
+  async getLeadershipMember(id: string): Promise<ApiResponse<Leadership>> {
+    return this.request<Leadership>(`/leadership/${id}`);
+  }
+
+  async createLeadershipMember(member: Omit<Leadership, 'id' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<Leadership>> {
+    return this.request<Leadership>('/leadership', {
+      method: 'POST',
+      body: JSON.stringify(member),
+    });
+  }
+
+  async updateLeadershipMember(id: string, member: Partial<Leadership>): Promise<ApiResponse<Leadership>> {
+    return this.request<Leadership>(`/leadership/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(member),
+    });
+  }
+
+  async deleteLeadershipMember(id: string): Promise<ApiResponse<null>> {
+    return this.request<null>(`/leadership/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async reorderLeadershipMembers(members: Leadership[]): Promise<ApiResponse<null>> {
+    return this.request<null>('/leadership/reorder', {
+      method: 'PUT',
+      body: JSON.stringify({ members }),
+    });
+  }
+
   // Health check
   async healthCheck(): Promise<ApiResponse<{ message: string; timestamp: string }>> {
     return this.request<{ message: string; timestamp: string }>('/health');
@@ -180,31 +371,45 @@ class ApiClient {
 // Create and export API client instance
 export const apiClient = new ApiClient();
 
-// Export individual methods for convenience
-export const {
-  getStudents,
-  getStudent,
-  createStudent,
-  updateStudent,
-  deleteStudent,
-  getArticles,
-  getArticle,
-  createArticle,
-  updateArticle,
-  deleteArticle,
-  getGalleryItems,
-  getGalleryItem,
-  createGalleryItem,
-  updateGalleryItem,
-  deleteGalleryItem,
-  healthCheck,
-} = apiClient;
+// Export individual methods for convenience with proper binding
+export const getStudents = apiClient.getStudents.bind(apiClient);
+export const getStudent = apiClient.getStudent.bind(apiClient);
+export const createStudent = apiClient.createStudent.bind(apiClient);
+export const updateStudent = apiClient.updateStudent.bind(apiClient);
+export const deleteStudent = apiClient.deleteStudent.bind(apiClient);
+export const getTeachers = apiClient.getTeachers.bind(apiClient);
+export const getTeacher = apiClient.getTeacher.bind(apiClient);
+export const createTeacher = apiClient.createTeacher.bind(apiClient);
+export const updateTeacher = apiClient.updateTeacher.bind(apiClient);
+export const deleteTeacher = apiClient.deleteTeacher.bind(apiClient);
+export const getArticles = apiClient.getArticles.bind(apiClient);
+export const getArticle = apiClient.getArticle.bind(apiClient);
+export const createArticle = apiClient.createArticle.bind(apiClient);
+export const updateArticle = apiClient.updateArticle.bind(apiClient);
+export const deleteArticle = apiClient.deleteArticle.bind(apiClient);
+export const getGalleryItems = apiClient.getGalleryItems.bind(apiClient);
+export const getGalleryItem = apiClient.getGalleryItem.bind(apiClient);
+export const createGalleryItem = apiClient.createGalleryItem.bind(apiClient);
+export const updateGalleryItem = apiClient.updateGalleryItem.bind(apiClient);
+export const deleteGalleryItem = apiClient.deleteGalleryItem.bind(apiClient);
+export const getLeadershipMembers = apiClient.getLeadershipMembers.bind(apiClient);
+export const getLeadershipMember = apiClient.getLeadershipMember.bind(apiClient);
+export const createLeadershipMember = apiClient.createLeadershipMember.bind(apiClient);
+export const updateLeadershipMember = apiClient.updateLeadershipMember.bind(apiClient);
+export const deleteLeadershipMember = apiClient.deleteLeadershipMember.bind(apiClient);
+export const reorderLeadershipMembers = apiClient.reorderLeadershipMembers.bind(apiClient);
+export const getSettings = apiClient.getSettings.bind(apiClient);
+export const updateSettings = apiClient.updateSettings.bind(apiClient);
+export const uploadFile = apiClient.uploadFile.bind(apiClient);
+export const healthCheck = apiClient.healthCheck.bind(apiClient);
 
 // Utility function to check if API is available
 export async function checkApiHealth(): Promise<boolean> {
   try {
-    const response = await healthCheck();
-    return response.success;
+    const res = await fetch(`${API_BASE_URL}/health`);
+    if (!res.ok) return false;
+    const data = await res.json();
+    return !!data?.success;
   } catch {
     return false;
   }
@@ -217,5 +422,5 @@ export function getApiBaseUrl(): string {
 
 // Utility function to get full API URL
 export function getApiUrl(): string {
-  return API_URL;
+  return API_BASE_URL;
 }

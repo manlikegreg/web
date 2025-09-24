@@ -3,8 +3,6 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, Users, Calendar, Target } from 'lucide-react';
-import ScrollAnimation from './animations/ScrollAnimation';
-import StaggerAnimation from './animations/StaggerAnimation';
 
 export default function AboutPreview() {
   return (
@@ -12,7 +10,12 @@ export default function AboutPreview() {
       <div className="container-custom">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Content */}
-          <ScrollAnimation direction="left" distance={60}>
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
             <h2 className="text-4xl font-bold text-secondary-900 mb-6">
               About Science 1B
             </h2>
@@ -27,7 +30,13 @@ export default function AboutPreview() {
             </p>
 
             {/* Stats */}
-            <StaggerAnimation className="grid grid-cols-3 gap-6 mb-8">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="grid grid-cols-3 gap-6 mb-8"
+            >
               <motion.div
                 className="text-center"
                 whileHover={{ scale: 1.05 }}
@@ -73,9 +82,13 @@ export default function AboutPreview() {
                 </motion.div>
                 <div className="text-sm text-secondary-600">Awards</div>
               </motion.div>
-            </StaggerAnimation>
+            </motion.div>
 
             <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              viewport={{ once: true }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -90,15 +103,23 @@ export default function AboutPreview() {
                 </motion.div>
               </Link>
             </motion.div>
-          </ScrollAnimation>
+          </motion.div>
 
           {/* Features */}
-          <ScrollAnimation direction="right" distance={60} delay={0.2}>
-            <StaggerAnimation className="space-y-6" staggerDelay={0.2}>
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            viewport={{ once: true }}
+          >
+            <div className="space-y-6">
               <motion.div
                 className="card p-6 group hover:shadow-xl transition-all duration-300"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                viewport={{ once: true }}
                 whileHover={{ y: -5, scale: 1.02 }}
-                transition={{ duration: 0.2 }}
               >
                 <div className="flex items-start space-x-4">
                   <motion.div
@@ -121,8 +142,11 @@ export default function AboutPreview() {
 
               <motion.div
                 className="card p-6 group hover:shadow-xl transition-all duration-300"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                viewport={{ once: true }}
                 whileHover={{ y: -5, scale: 1.02 }}
-                transition={{ duration: 0.2 }}
               >
                 <div className="flex items-start space-x-4">
                   <motion.div
@@ -145,8 +169,11 @@ export default function AboutPreview() {
 
               <motion.div
                 className="card p-6 group hover:shadow-xl transition-all duration-300"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                viewport={{ once: true }}
                 whileHover={{ y: -5, scale: 1.02 }}
-                transition={{ duration: 0.2 }}
               >
                 <div className="flex items-start space-x-4">
                   <motion.div
@@ -166,8 +193,8 @@ export default function AboutPreview() {
                   </div>
                 </div>
               </motion.div>
-            </StaggerAnimation>
-          </ScrollAnimation>
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>

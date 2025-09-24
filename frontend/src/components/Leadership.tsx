@@ -1,46 +1,35 @@
 'use client';
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Crown, Users, Award, Star, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { Crown, Users, Award, Star } from 'lucide-react';
+import { getLeadershipMembers } from '@/lib/api';
 
-// Define the type for a leader
-interface Leader {
-  name: string;
-  role: string;
-  bio: string;
-  imageUrl: string;
-  achievements: string[];
-}
-
-const leadership: Leader[] = [
+// Default fallback data when no leadership members are available
+const defaultLeadership = [
   {
     name: 'Kwame Asante',
-    role: 'Class Prefect',
+    position: 'Class Prefect',
     bio: 'Leading by example with outstanding academic performance and exceptional leadership skills.',
-    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face',
-    achievements: ['Science Fair Winner', 'Debate Champion', 'Student Council Member'],
+    profilePic: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face',
   },
   {
     name: 'Ama Serwaa',
-    role: 'Assistant Prefect',
+    position: 'Assistant Prefect',
     bio: 'Passionate about community service and environmental conservation initiatives.',
-    imageUrl: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300&h=300&fit=crop&crop=face',
-    achievements: ['Community Service Award', 'Environmental Club President', 'Academic Excellence'],
+    profilePic: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300&h=300&fit=crop&crop=face',
   },
   {
     name: 'Kofi Mensah',
-    role: 'Academic Secretary',
+    position: 'Academic Secretary',
     bio: 'Dedicated to helping fellow students achieve their academic goals and maintain high standards.',
-    imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face',
-    achievements: ['Mathematics Olympiad Winner', 'Peer Tutor', 'Research Project Leader'],
+    profilePic: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face',
   },
   {
     name: 'Akosua Osei',
-    role: 'Sports Captain',
+    position: 'Sports Captain',
     bio: 'Promoting physical fitness and team spirit through various sports and athletic activities.',
-    imageUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop&crop=face',
-    achievements: ['Athletics Champion', 'Team Captain', 'Sports Excellence Award'],
+    profilePic: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop&crop=face',
   },
 ];
 
@@ -72,7 +61,53 @@ const committees = [
 ];
 
 export default function Leadership() {
-  const [selectedLeader, setSelectedLeader] = useState<Leader | null>(null);
+  const [leadership, setLeadership] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLeadership = async () => {
+      try {
+        console.log('Fetching leadership members...');
+        const response = await getLeadershipMembers();
+        console.log('Leadership API response:', response);
+        
+        if (response.success && response.data && response.data.length > 0) {
+          console.log('Found leadership members:', response.data);
+          // Transform API data to match component structure
+          const transformedData = response.data.map(member => ({
+            name: member.name,
+            position: member.position,
+            bio: member.bio || 'No bio available',
+            profilePic: member.profilePic || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face'
+          }));
+          setLeadership(transformedData);
+        } else {
+          console.log('No leadership members found, showing empty state');
+          setLeadership([]);
+        }
+      } catch (error) {
+        console.error('Error fetching leadership members:', error);
+        setLeadership([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLeadership();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="section-padding bg-white">
+        <div className="container-custom">
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p className="mt-4 text-gray-600">Loading leadership team...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="section-padding bg-white">
@@ -94,20 +129,28 @@ export default function Leadership() {
         </motion.div>
 
         {/* Leadership Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          {leadership.map((leader, index) => (
+        {leadership.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Crown className="w-8 h-8 text-gray-400" />
+            </div>
+            <h3 className="text-xl font-medium text-gray-900 mb-2">No Leadership Members</h3>
+            <p className="text-gray-600">Leadership team members will appear here once they're added through the admin panel.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            {leadership.map((leader, index) => (
             <motion.div
               key={leader.name}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="card p-6 text-center group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer"
-              onClick={() => setSelectedLeader(leader)}
+              className="card p-6 text-center group hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
             >
               <div className="relative mb-4">
                 <img
-                  src={leader.imageUrl}
+                  src={leader.profilePic || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face'}
                   alt={leader.name}
                   className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-primary-100 group-hover:border-primary-200 transition-colors"
                 />
@@ -120,25 +163,15 @@ export default function Leadership() {
                 {leader.name}
               </h3>
               <p className="text-primary-600 font-medium mb-3">
-                {leader.role}
+                {leader.position}
               </p>
               <p className="text-secondary-600 text-sm mb-4">
                 {leader.bio}
               </p>
-              
-              <div className="space-y-1">
-                {leader.achievements.map((achievement, idx) => (
-                  <span
-                    key={idx}
-                    className="inline-block px-2 py-1 bg-primary-100 text-primary-700 text-xs rounded-full mr-1 mb-1"
-                  >
-                    {achievement}
-                  </span>
-                ))}
-              </div>
             </motion.div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Committees */}
         <motion.div
@@ -223,61 +256,6 @@ export default function Leadership() {
             </div>
           </div>
         </motion.div>
-
-        {/* Modal for leader details */}
-        <AnimatePresence>
-          {selectedLeader && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
-              onClick={() => setSelectedLeader(null)}
-            >
-              <motion.div
-                initial={{ y: 50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: 50, opacity: 0 }}
-                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="bg-white rounded-lg shadow-2xl max-w-lg w-full p-8 relative"
-                onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
-              >
-                <button
-                  onClick={() => setSelectedLeader(null)}
-                  className="absolute top-4 right-4 text-secondary-500 hover:text-secondary-800 transition-colors"
-                >
-                  <X size={24} />
-                </button>
-
-                <div className="text-center">
-                  <img
-                    src={selectedLeader.imageUrl}
-                    alt={selectedLeader.name}
-                    className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-primary-200 mb-4"
-                  />
-                  <h2 className="text-3xl font-bold text-secondary-900">{selectedLeader.name}</h2>
-                  <p className="text-primary-600 font-medium text-lg mb-4">{selectedLeader.role}</p>
-                </div>
-
-                <p className="text-secondary-600 text-center mb-6">{selectedLeader.bio}</p>
-
-                <div>
-                  <h4 className="text-xl font-semibold text-secondary-800 mb-3 text-center">Achievements</h4>
-                  <div className="flex flex-wrap justify-center gap-2">
-                    {selectedLeader.achievements.map((achievement, idx) => (
-                      <span
-                        key={idx}
-                        className="px-3 py-1 bg-primary-100 text-primary-700 text-sm rounded-full"
-                      >
-                        {achievement}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
     </section>
   );

@@ -2,15 +2,37 @@
 
 import { motion } from 'framer-motion';
 import { Camera, Play, Image, Video } from 'lucide-react';
-
-const stats = [
-  { icon: Image, label: 'Photos', count: '150+' },
-  { icon: Video, label: 'Videos', count: '25+' },
-  { icon: Camera, label: 'Events', count: '30+' },
-  { icon: Play, label: 'Memories', count: '∞' },
-];
+import { useEffect, useState } from 'react';
+import { getGalleryItems } from '@/lib/api';
+import { isVideoUrl } from '@/lib/media';
 
 export default function GalleryHero() {
+  const [photos, setPhotos] = useState(0);
+  const [videos, setVideos] = useState(0);
+  const [events, setEvents] = useState(0);
+  const [total, setTotal] = useState(0);
+
+  useEffect(() => {
+    (async () => {
+      const res = await getGalleryItems(1, 1000);
+      if (res.success && res.data) {
+        const items = res.data;
+        const p = items.filter((i) => !isVideoUrl(i.imageUrl)).length;
+        const v = items.filter((i) => isVideoUrl(i.imageUrl)).length;
+        const uniqueDays = new Set(
+          items
+            .map((i) => i.createdAt)
+            .filter(Boolean)
+            .map((d) => new Date(d as any).toDateString())
+        );
+        setPhotos(p);
+        setVideos(v);
+        setTotal(items.length);
+        setEvents(uniqueDays.size || Math.max(1, Math.floor(items.length / 5)));
+      }
+    })();
+  }, []);
+
   return (
     <section className="relative py-20 bg-gradient-to-br from-primary-50 to-accent-50 overflow-hidden">
       {/* Background Pattern */}
@@ -42,22 +64,34 @@ export default function GalleryHero() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto"
           >
-            {stats.map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <div key={stat.label} className="text-center">
-                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
-                    <Icon className="w-8 h-8 text-primary-600" />
-                  </div>
-                  <div className="text-3xl font-bold text-primary-600 mb-1">
-                    {stat.count}
-                  </div>
-                  <div className="text-sm text-secondary-600">
-                    {stat.label}
-                  </div>
-                </div>
-              );
-            })}
+            <div className="text-center">
+              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                <Image className="w-8 h-8 text-primary-600" />
+              </div>
+              <div className="text-3xl font-bold text-primary-600 mb-1">{photos}</div>
+              <div className="text-sm text-secondary-600">Photos</div>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                <Video className="w-8 h-8 text-primary-600" />
+              </div>
+              <div className="text-3xl font-bold text-primary-600 mb-1">{videos}</div>
+              <div className="text-sm text-secondary-600">Videos</div>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                <Camera className="w-8 h-8 text-primary-600" />
+              </div>
+              <div className="text-3xl font-bold text-primary-600 mb-1">{events}</div>
+              <div className="text-sm text-secondary-600">Events</div>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                <Play className="w-8 h-8 text-primary-600" />
+              </div>
+              <div className="text-3xl font-bold text-primary-600 mb-1">{total}</div>
+              <div className="text-sm text-secondary-600">Memories</div>
+            </div>
           </motion.div>
         </motion.div>
       </div>
